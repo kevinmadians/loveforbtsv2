@@ -40,7 +40,6 @@ export default function LetterPage() {
 
   useEffect(() => {
     if (letter) {
-      const userId = localStorage.getItem('userId');
       const likedLetters = new Set(JSON.parse(localStorage.getItem('likedLetters') || '[]'));
       setIsLiked(likedLetters.has(letter.id));
     }
@@ -86,10 +85,10 @@ export default function LetterPage() {
 
   const handleLike = async () => {
     if (!letter) return;
-    const userId = localStorage.getItem('userId') || crypto.randomUUID();
+    const currentUserId = localStorage.getItem('userId') || crypto.randomUUID();
     
     if (!localStorage.getItem('userId')) {
-      localStorage.setItem('userId', userId);
+      localStorage.setItem('userId', currentUserId);
     }
 
     try {
@@ -97,7 +96,7 @@ export default function LetterPage() {
       
       await updateDoc(letterRef, {
         likes: increment(isLiked ? -1 : 1),
-        likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
+        likedBy: isLiked ? arrayRemove(currentUserId) : arrayUnion(currentUserId)
       });
 
       setLetter(prev => prev ? {
@@ -143,11 +142,15 @@ export default function LetterPage() {
         </div>
 
         <div className="mb-6 relative">
-          <span className="absolute -left-2 -top-4 text-4xl text-[#9333EA]/40 font-serif">"</span>
+          <span className="absolute -left-2 -top-4 text-4xl text-[#9333EA]/40 font-serif">
+            &ldquo;
+          </span>
           <p className="whitespace-pre-wrap text-zinc-300 leading-relaxed text-lg px-4">
             {letter.message}
           </p>
-          <span className="absolute -right-2 -bottom-4 text-4xl text-[#9333EA]/40 font-serif">"</span>
+          <span className="absolute -right-2 -bottom-4 text-4xl text-[#9333EA]/40 font-serif">
+            &rdquo;
+          </span>
         </div>
 
         <div className="flex justify-between items-center pt-4 border-t border-[#9333EA]/20">

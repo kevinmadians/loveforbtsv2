@@ -11,7 +11,6 @@ import {
   onSnapshot,
   Timestamp,
   where,
-  Query,
   limit,
   startAfter,
   getDocs,
@@ -19,7 +18,9 @@ import {
   doc,
   increment,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
+  DocumentData,
+  QueryDocumentSnapshot
 } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Masonry from 'react-masonry-css';
@@ -45,7 +46,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const lastLetterRef = useRef<any>(null);
+  const lastLetterRef = useRef<HTMLDivElement | null>(null);
+  const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const LETTERS_PER_PAGE = 12;
 
@@ -64,10 +66,10 @@ export default function Home() {
     try {
       setIsLoading(true);
       setHasMore(true);
-      lastLetterRef.current = null;
+      lastDocRef.current = null;
       const lettersRef = collection(db, 'letters');
       
-      let queryConstraints = [];
+      const queryConstraints = [];
       
       if (selectedMember !== 'all') {
         queryConstraints.push(where('member', '==', selectedMember));
@@ -92,7 +94,7 @@ export default function Home() {
             ...doc.data()
           })) as Letter[];
           
-          lastLetterRef.current = snapshot.docs[snapshot.docs.length - 1];
+          lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
           setLetters(fetchedLetters);
           setHasMore(snapshot.docs.length === LETTERS_PER_PAGE);
           setIsLoading(false);
@@ -110,14 +112,14 @@ export default function Home() {
     }
   }, [selectedMember, sortOrder]);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (!hasMore || loadingMore || isLoading) return;
 
     try {
       setLoadingMore(true);
       const lettersRef = collection(db, 'letters');
       
-      let queryConstraints = [];
+      const queryConstraints = [];
       
       if (selectedMember !== 'all') {
         queryConstraints.push(where('member', '==', selectedMember));
@@ -130,7 +132,7 @@ export default function Home() {
         queryConstraints.push(orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc'));
       }
       
-      queryConstraints.push(startAfter(lastLetterRef.current));
+      queryConstraints.push(startAfter(lastDocRef.current));
       queryConstraints.push(limit(LETTERS_PER_PAGE));
       
       const q = query(lettersRef, ...queryConstraints);
@@ -141,7 +143,7 @@ export default function Home() {
         ...doc.data()
       })) as Letter[];
 
-      lastLetterRef.current = snapshot.docs[snapshot.docs.length - 1];
+      lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
       setLetters(prev => [...prev, ...newLetters]);
       setHasMore(snapshot.docs.length === LETTERS_PER_PAGE);
     } catch (error) {
@@ -149,7 +151,7 @@ export default function Home() {
     } finally {
       setLoadingMore(false);
     }
-  };
+  }, [hasMore, loadingMore, isLoading, selectedMember, sortOrder]);
 
   const lastLetterElementRef = useCallback((node: HTMLDivElement) => {
     if (observerRef.current) observerRef.current.disconnect();
