@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fredoka, Reenie_Beanie } from "next/font/google";
 import "./globals.css";
+import Footer from "./components/Footer";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -26,9 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fredoka.variable} ${reenieBeanie.variable} font-fredoka`}
+        className={`${fredoka.variable} ${reenieBeanie.variable} font-fredoka pb-16`}
       >
         {children}
+        <Footer />
       </body>
     </html>
   );

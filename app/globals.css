@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #333333;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
-    --foreground: #333333;
+    --background: #000000;
+    --foreground: #ffffff;
   }
 }
 
@@ -20,15 +20,168 @@ body {
 }
 
 .letter-card {
-  @apply p-6 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  @apply p-4 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden;
+  margin-bottom: 1rem;
+  break-inside: avoid;
 }
 
-.card-1 { background-color: #ffe6eb; color: #333333; }
-.card-2 { background-color: #e8f7f0; color: #333333; }
-.card-3 { background-color: #fff8e6; color: #333333; }
-.card-4 { background-color: #f0ebff; color: #333333; }
-.card-5 { background-color: #e6f4ff; color: #333333; }
+.letter-card-content {
+  @apply flex-grow overflow-hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  min-height: 4.5rem;
+  color: #e4e4e7;
+}
+
+.card-1 { 
+  background-color: #FFB5A7; /* Soft Coral Pink */
+  border: none;
+  color: #1a1a1a;
+}
+.card-2 { 
+  background-color: #B5E2FA; /* Sky Blue */
+  border: none;
+  color: #1a1a1a;
+}
+.card-3 { 
+  background-color: #C688F8; /* Updated Purple */
+  border: none;
+  color: white;
+}
+.card-4 { 
+  background-color: #98F5E1; /* Mint */
+  border: none;
+  color: #1a1a1a;
+}
+.card-5 { 
+  background-color: #FDE68A; /* Warm Yellow */
+  border: none;
+  color: #1a1a1a;
+}
+
+.card-1 .letter-card-content,
+.card-1 .text-zinc-300,
+.card-1 .text-zinc-400,
+.card-1 .text-zinc-200,
+.card-2 .letter-card-content,
+.card-2 .text-zinc-300,
+.card-2 .text-zinc-400,
+.card-2 .text-zinc-200,
+.card-4 .letter-card-content,
+.card-4 .text-zinc-300,
+.card-4 .text-zinc-400,
+.card-4 .text-zinc-200,
+.card-5 .letter-card-content,
+.card-5 .text-zinc-300,
+.card-5 .text-zinc-400,
+.card-5 .text-zinc-200 {
+  color: #1a1a1a;
+}
+
+.card-3 .letter-card-content,
+.card-3 .text-zinc-300,
+.card-3 .text-zinc-400,
+.card-3 .text-zinc-200 {
+  color: white;
+}
+
+.letter-card .border-zinc-800,
+.letter-card .border-t {
+  border-color: rgba(255, 255, 255, 0.2);
+}
 
 .input-style {
-  @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none bg-white text-gray-800;
+  @apply w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none;
+  background-color: #18181b;
+  border-color: #27272a;
+  color: #ffffff;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+.heart-loading {
+  @apply inline-block relative w-12 h-12;
+}
+
+.heart-loading::before,
+.heart-loading::after {
+  content: '';
+  @apply absolute w-8 h-8 bg-[#C688F8] rounded-full opacity-50;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+.heart-loading::after {
+  @apply w-8 h-8;
+  top: 50%;
+  left: 0;
+  transform: rotate(45deg);
+}
+
+.share-button {
+  @apply p-3 rounded-full text-white transition-all duration-300
+    hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2
+    focus:ring-[#C688F8] relative z-10;
+}
+
+.masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -1rem;
+}
+
+.masonry-grid_column {
+  padding-left: 1rem;
+  background-clip: padding-box;
+}
+
+.share-button-small {
+  @apply p-2 rounded-full text-white transition-all duration-300
+    hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+    focus:ring-[#C688F8] relative z-10 shadow-sm;
+}
+
+.dark-theme-text {
+  color: #e4e4e7;
+}
+
+.dark-theme-text-secondary {
+  color: #a1a1aa;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 94, 91, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 94, 91, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 94, 91, 0);
+  }
+}
+
+a[href*="ko-fi"]:hover {
+  animation: pulse 2s infinite;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Letter } from './types/Letter';
 import { db } from './firebase/config';
 import { 
@@ -11,14 +11,25 @@ import {
   onSnapshot,
   Timestamp,
   where,
-  Query
+  Query,
+  limit,
+  startAfter,
+  getDocs,
+  updateDoc,
+  doc,
+  increment,
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import Masonry from 'react-masonry-css';
 
 const membersList = ['BTS', 'RM', 'Jin', 'Suga', 'J-Hope', 'Jimin', 'V', 'Jungkook'];
 const colorClasses = ['card-1', 'card-2', 'card-3', 'card-4', 'card-5'];
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
-  { value: 'oldest', label: 'Oldest First' }
+  { value: 'oldest', label: 'Oldest First' },
+  { value: 'mostLoved', label: 'Most Loved' }
 ];
 
 export default function Home() {
@@ -32,10 +43,28 @@ export default function Home() {
   const [selectedMember, setSelectedMember] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const lastLetterRef = useRef<any>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const LETTERS_PER_PAGE = 12;
+
+  const router = useRouter();
+
+  const [likedLetters, setLikedLetters] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const savedLikes = localStorage.getItem('likedLetters');
+    if (savedLikes) {
+      setLikedLetters(new Set(JSON.parse(savedLikes)));
+    }
+  }, []);
 
   useEffect(() => {
     try {
       setIsLoading(true);
+      setHasMore(true);
+      lastLetterRef.current = null;
       const lettersRef = collection(db, 'letters');
       
       let queryConstraints = [];
@@ -44,7 +73,14 @@ export default function Home() {
         queryConstraints.push(where('member', '==', selectedMember));
       }
       
-      queryConstraints.push(orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc'));
+      if (sortOrder === 'mostLoved') {
+        queryConstraints.push(orderBy('likes', 'desc'));
+        queryConstraints.push(orderBy('timestamp', 'desc'));
+      } else {
+        queryConstraints.push(orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc'));
+      }
+      
+      queryConstraints.push(limit(LETTERS_PER_PAGE));
       
       const q = query(lettersRef, ...queryConstraints);
       
@@ -56,7 +92,9 @@ export default function Home() {
             ...doc.data()
           })) as Letter[];
           
+          lastLetterRef.current = snapshot.docs[snapshot.docs.length - 1];
           setLetters(fetchedLetters);
+          setHasMore(snapshot.docs.length === LETTERS_PER_PAGE);
           setIsLoading(false);
         },
         (error) => {
@@ -72,29 +110,83 @@ export default function Home() {
     }
   }, [selectedMember, sortOrder]);
 
+  const loadMore = async () => {
+    if (!hasMore || loadingMore || isLoading) return;
+
+    try {
+      setLoadingMore(true);
+      const lettersRef = collection(db, 'letters');
+      
+      let queryConstraints = [];
+      
+      if (selectedMember !== 'all') {
+        queryConstraints.push(where('member', '==', selectedMember));
+      }
+      
+      if (sortOrder === 'mostLoved') {
+        queryConstraints.push(orderBy('likes', 'desc'));
+        queryConstraints.push(orderBy('timestamp', 'desc'));
+      } else {
+        queryConstraints.push(orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc'));
+      }
+      
+      queryConstraints.push(startAfter(lastLetterRef.current));
+      queryConstraints.push(limit(LETTERS_PER_PAGE));
+      
+      const q = query(lettersRef, ...queryConstraints);
+      const snapshot = await getDocs(q);
+      
+      const newLetters = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Letter[];
+
+      lastLetterRef.current = snapshot.docs[snapshot.docs.length - 1];
+      setLetters(prev => [...prev, ...newLetters]);
+      setHasMore(snapshot.docs.length === LETTERS_PER_PAGE);
+    } catch (error) {
+      console.error("Error loading more letters:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const lastLetterElementRef = useCallback((node: HTMLDivElement) => {
+    if (observerRef.current) observerRef.current.disconnect();
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+    if (node) observerRef.current.observe(node);
+  }, [hasMore, loadMore]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (name.length > 20) {
+      alert('Name must be 20 characters or less');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      // Create the letter document
       const newLetter = {
         name,
-        member, // This should match exactly with the filter value
+        member,
         message,
         timestamp: Timestamp.now(),
-        colorClass: colorClasses[Math.floor(Math.random() * colorClasses.length)]
+        colorClass: colorClasses[Math.floor(Math.random() * colorClasses.length)],
+        likes: 0,
+        likedBy: []
       };
 
-      // Add to Firestore
       await addDoc(collection(db, 'letters'), newLetter);
       
-      // Reset form
       setName('');
       setMessage('');
       setMember(membersList[0]);
-      
-      // Optional: Switch filter to show the newly added letter
       setSelectedMember(member);
       
     } catch (error) {
@@ -114,14 +206,55 @@ export default function Home() {
     setSortOrder(e.target.value);
   };
 
+  const handleLike = async (e: React.MouseEvent, letterId: string) => {
+    e.stopPropagation();
+    const userId = localStorage.getItem('userId') || crypto.randomUUID();
+    
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', userId);
+    }
+
+    try {
+      const letterRef = doc(db, 'letters', letterId);
+      const isLiked = likedLetters.has(letterId);
+
+      await updateDoc(letterRef, {
+        likes: increment(isLiked ? -1 : 1),
+        likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
+      });
+
+      const newLikedLetters = new Set(likedLetters);
+      if (isLiked) {
+        newLikedLetters.delete(letterId);
+      } else {
+        newLikedLetters.add(letterId);
+      }
+      setLikedLetters(newLikedLetters);
+      
+      localStorage.setItem('likedLetters', JSON.stringify([...newLikedLetters]));
+
+    } catch (error) {
+      console.error('Error updating likes:', error);
+    }
+  };
+
+  // Add breakpoint object for responsive columns
+  const breakpointColumnsObj = {
+    default: 4,
+    1280: 4,
+    1024: 3,
+    768: 2,
+    640: 1
+  };
+
   return (
-    <div className="min-h-screen p-8 bg-white">
+    <div className="min-h-screen p-8 bg-black">
       {/* Hero Section */}
       <header className="text-center mb-16">
-        <h1 className="font-reenie text-6xl mb-4 animate-fade-in text-gray-800">
+        <h1 className="font-reenie text-6xl mb-4 animate-fade-in text-white">
           Letters for BTS
         </h1>
-        <p className="text-xl text-gray-700">Share your heartfelt messages with BTS</p>
+        <p className="text-xl text-zinc-300">Share your heartfelt messages with BTS</p>
       </header>
 
       {/* Form Section */}
@@ -134,6 +267,7 @@ export default function Home() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            maxLength={20}
             disabled={isSubmitting}
           />
         </div>
@@ -166,7 +300,7 @@ export default function Home() {
         
         <button
           type="submit"
-          className={`w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 
+          className={`w-full bg-[#C688F8] text-white py-3 rounded-lg hover:bg-[#B674E7] 
             transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed`}
           disabled={isSubmitting}
         >
@@ -176,93 +310,110 @@ export default function Home() {
 
       {/* Filters Section */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex flex-col items-center space-y-6">
-            {/* Member Filter Buttons */}
-            <div className="w-full text-center">
-              <label className="block text-lg font-medium text-gray-700 mb-4">
-                Filter by Member
-              </label>
-              <div className="flex flex-wrap justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleMemberFilter('all')}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all
-                    ${selectedMember === 'all'
-                      ? 'bg-purple-600 text-white shadow-md transform scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                    }`}
-                >
-                  All
-                </button>
-                {membersList.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => handleMemberFilter(m)}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all
-                      ${selectedMember === m
-                        ? 'bg-purple-600 text-white shadow-md transform scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                      }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sort Order */}
-            <div className="w-full max-w-xs">
-              <label className="block text-center text-sm font-medium text-gray-700 mb-2">
-                Sort Order
-              </label>
-              <select
-                className="input-style text-center"
-                value={sortOrder}
-                onChange={handleSortChange}
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleMemberFilter('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                ${selectedMember === 'all' 
+                  ? 'bg-[#9333EA] text-white' 
+                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
+            >
+              All
+            </button>
+            {membersList.map((m) => (
+              <button
+                key={m}
+                onClick={() => handleMemberFilter(m)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                  ${selectedMember === m 
+                    ? 'bg-[#9333EA] text-white' 
+                    : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
               >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                {m}
+              </button>
+            ))}
           </div>
-          
-          {/* Filter Stats */}
-          <div className="mt-6 text-sm text-gray-600 text-center">
-            Showing {letters.length} letter{letters.length !== 1 ? 's' : ''} 
-            {selectedMember !== 'all' ? ` for ${selectedMember}` : ''}
-          </div>
+
+          <select
+            value={sortOrder}
+            onChange={handleSortChange}
+            className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg border border-zinc-700 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+          >
+            {sortOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
       {/* Letters Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {isLoading ? (
-          <div className="col-span-full text-center py-8 text-gray-600">
-            Loading letters...
+          <div className="text-center py-8">
+            <div className="heart-loading"></div>
           </div>
         ) : letters.length > 0 ? (
-          letters.map((letter) => (
-            <div
-              key={letter.id}
-              className={`letter-card ${letter.colorClass}`}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-bold text-lg text-gray-800">To: {letter.member}</h3>
-                <span className="text-sm text-gray-600">
-                  {new Date(letter.timestamp.toDate()).toLocaleDateString()}
-                </span>
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="masonry-grid"
+            columnClassName="masonry-grid_column"
+          >
+            {letters.map((letter, index) => (
+              <div
+                key={letter.id}
+                ref={index === letters.length - 1 ? lastLetterElementRef : undefined}
+                className={`letter-card ${letter.colorClass} cursor-pointer hover:border-[#9333EA]`}
+                onClick={() => router.push(`/letter/${letter.id}`)}
+              >
+                <div className="text-center mb-2">
+                  <h3 className="font-bold text-base text-zinc-200">
+                    To: {letter.member}
+                  </h3>
+                </div>
+                
+                <div className="letter-card-content mb-2">
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {letter.message}
+                  </p>
+                </div>
+                
+                <div className="mt-auto pt-2 border-t border-zinc-800 flex justify-between items-center">
+                  <span className="text-xs text-zinc-400 italic">
+                    {new Date(letter.timestamp.toDate()).toLocaleDateString()}
+                  </span>
+                  
+                  <button
+                    onClick={(e) => handleLike(e, letter.id)}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full 
+                      ${likedLetters.has(letter.id) 
+                        ? 'bg-[#C688F8] text-white' 
+                        : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'} 
+                      transition-colors duration-300`}
+                  >
+                    <svg 
+                      className={`w-4 h-4 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
+                      fill="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span className="text-xs font-medium">
+                      {letter.likes ?? 0}
+                    </span>
+                  </button>
+
+                  <p className="text-right text-xs font-medium text-zinc-300">
+                    {letter.name}
+                  </p>
+                </div>
               </div>
-              <p className="mb-4 whitespace-pre-wrap text-gray-700">{letter.message}</p>
-              <p className="text-right text-sm font-semibold text-gray-800">From: {letter.name}</p>
-            </div>
-          ))
+            ))}
+          </Masonry>
         ) : (
-          <div className="col-span-full text-center py-8 text-gray-600">
+          <div className="text-center py-8 text-zinc-400">
             No letters found{selectedMember !== 'all' ? ` for ${selectedMember}` : ''}. 
             Be the first to write one!
           </div>
