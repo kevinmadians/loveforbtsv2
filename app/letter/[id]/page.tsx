@@ -132,8 +132,12 @@ export default function LetterPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-white">
-      <div className="text-center max-w-4xl mx-auto mb-8">
+    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-white relative">
+      <div className="gradient-bg" />
+      <div className="bg-pattern" />
+      <div className="floating-stickers" />
+      
+      <div className="text-center max-w-4xl mx-auto mb-6">
         <button 
           onClick={() => router.push('/')} 
           className="font-reenie font-bold text-6xl mb-4 animate-fade-in text-gray-800 hover:text-[#9333EA] transition-colors duration-300"
@@ -144,19 +148,28 @@ export default function LetterPage() {
           Pour your love for BTS into words that inspire and unite ARMYs worldwide
         </p>
       </div>
-
-      <div className="w-full max-w-2xl mx-auto">
+      
+      <div className="w-full max-w-2xl mx-auto relative z-10">
         <div className={`p-6 rounded-2xl shadow-xl ${letter.colorClass}`}>
-          <div className="text-center mb-4">
-            <h3 className="text-2xl font-bold text-purple-600">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-white/90">
               To: {letter.member}
             </h3>
+            <div className="w-16 h-1 bg-white/30 mx-auto mt-3 rounded-full" />
           </div>
 
-          <div className="text-white mb-6">
-            <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
-              {letter.message}
-            </p>
+          <div className="text-white mb-6 relative">
+            <svg className="absolute top-0 left-0 w-8 h-8 text-white/20 transform -translate-x-4 -translate-y-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+            <div className="pl-6 pr-4">
+              <p className="text-lg leading-relaxed whitespace-pre-wrap break-words italic">
+                {letter.message}
+              </p>
+            </div>
+            <svg className="absolute bottom-0 right-0 w-8 h-8 text-white/20 transform translate-x-4 translate-y-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.57-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z" />
+            </svg>
           </div>
 
           <div className="flex flex-col pt-4 border-t border-black/20">
@@ -221,8 +234,8 @@ export default function LetterPage() {
                 className="share-button-small bg-[#25D366]/90 hover:bg-[#25D366]"
                 aria-label="Share on WhatsApp"
               >
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
                 </svg>
               </button>
 

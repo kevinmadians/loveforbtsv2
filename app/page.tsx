@@ -403,76 +403,75 @@ export default function Home() {
               <div
                 key={letter.id}
                 ref={index === letters.length - 1 ? lastLetterElementRef : undefined}
-                className={`letter-card ${letter.colorClass} p-4 sm:p-6`}
+                className={`letter-card ${letter.colorClass}`}
                 onClick={() => router.push(`/letter/${letter.id}`)}
               >
-                <div className="text-center mb-2 relative">
-                  <span className="absolute right-0 top-0 text-xl">💌</span>
-                  <h3 className="font-bold text-base">
-                    To: {letter.member}
-                  </h3>
-                </div>
-                
-                <div className="letter-card-content">
-                  <p className="text-sm leading-relaxed">
-                    {letter.message}
-                  </p>
-                </div>
-                
-                <div className="mt-auto">
-                  {letter.spotifyTrack && (
-                    <div className="mt-4 pt-4 border-t border-white/20">
-                      <p className="text-center italic text-xs text-white/80 mb-2">Favorite song</p>
-                      <div className="flex items-center gap-2 justify-center">
-                        <img 
-                          src={letter.spotifyTrack.albumCover}
-                          alt={letter.spotifyTrack.name}
-                          className="w-10 h-10 rounded-md"
-                        />
-                        <div>
-                          <p className="font-medium text-white text-xs truncate max-w-[150px]">
-                            {letter.spotifyTrack.name}
-                          </p>
-                          <p className="text-[10px] text-white/80 truncate max-w-[150px]">
-                            {letter.spotifyTrack.artist}
-                          </p>
+                <div className="flex flex-col h-full">
+                  <div className="mb-3">
+                    <h3 className="text-xl font-bold mb-2">
+                      To: {letter.member}
+                    </h3>
+                    <div className="w-12 h-0.5 bg-white/30 rounded-full mb-3" />
+                    <p className="letter-card-content text-white/90">
+                      {letter.message}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto">
+                    {letter.spotifyTrack && (
+                      <div className="mt-4 pt-4 border-t border-white/20">
+                        <p className="text-center italic text-xs text-white/80 mb-2">Favorite song</p>
+                        <div className="flex items-center gap-2 justify-center">
+                          <img 
+                            src={letter.spotifyTrack.albumCover}
+                            alt={letter.spotifyTrack.name}
+                            className="w-10 h-10 rounded-md"
+                          />
+                          <div>
+                            <p className="font-medium text-white text-xs truncate max-w-[150px]">
+                              {letter.spotifyTrack.name}
+                            </p>
+                            <p className="text-[10px] text-white/80 truncate max-w-[150px]">
+                              {letter.spotifyTrack.artist}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  <div className="pt-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] text-black italic">
-                        {new Date(letter.timestamp.toDate()).toLocaleDateString()}
-                      </span>
-                      <p className="text-right text-xs font-medium text-gray-950">
-                        {letter.name}
-                      </p>
-                    </div>
-                    
-                    <div className="flex justify-center">
-                      <button
-                        onClick={(e) => handleLike(e, letter.id)}
-                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full 
-                          ${likedLetters.has(letter.id) 
-                            ? 'bg-[#C688F8] text-white' 
-                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'} 
-                          transition-colors duration-300`}
-                      >
-                        <svg 
-                          className={`w-3 h-3 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
+                    <div className="pt-2">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[10px] text-black italic">
+                          {new Date(letter.timestamp.toDate()).toLocaleDateString()}
+                        </span>
+                        <p className="text-right text-xs font-medium text-gray-950">
+                          {letter.name}
+                        </p>
+                      </div>
+                      
+                      <div className="flex justify-center">
+                        <button
+                          onClick={(e) => handleLike(e, letter.id)}
+                          className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full 
+                            ${likedLetters.has(letter.id) 
+                              ? 'bg-[#C688F8] text-white' 
+                              : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'} 
+                            transition-colors duration-300`}
                         >
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        {letter.likes > 0 && (
-                          <span className="text-[10px] font-medium">
-                            {letter.likes}
-                          </span>
-                        )}
-                      </button>
+                          <svg 
+                            className={`w-3 h-3 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
+                            fill="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                          </svg>
+                          {letter.likes > 0 && (
+                            <span className="text-[10px] font-medium">
+                              {letter.likes}
+                            </span>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
