@@ -240,23 +240,24 @@ export default function Home() {
     }
   };
 
-  // Add breakpoint object for responsive columns
+  // Update breakpoint columns object
   const breakpointColumnsObj = {
-    default: 4,
-    1280: 4,
-    1024: 3,
-    768: 2,
-    640: 1
+    default: 4,    // >= 1280px
+    1280: 3,       // >= 1024px
+    1024: 3,       // >= 768px
+    768: 2,        // >= 640px
+    640: 2,        // >= 380px
+    380: 1         // < 380px
   };
 
   return (
-    <div className="min-h-screen p-8 bg-black">
+    <div className="min-h-screen p-8 bg-white">
       {/* Hero Section */}
       <header className="text-center mb-16">
-        <h1 className="font-reenie text-6xl mb-4 animate-fade-in text-white">
+        <h1 className="font-reenie text-6xl mb-4 animate-fade-in text-gray-800">
           Letters for BTS
         </h1>
-        <p className="text-xl text-zinc-300">Share your heartfelt messages with BTS</p>
+        <p className="text-xl text-gray-600">Share your heartfelt messages with BTS</p>
       </header>
 
       {/* Form Section */}
@@ -319,7 +320,7 @@ export default function Home() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
                 ${selectedMember === 'all' 
                   ? 'bg-[#9333EA] text-white' 
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               All
             </button>
@@ -330,7 +331,7 @@ export default function Home() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
                   ${selectedMember === m 
                     ? 'bg-[#9333EA] text-white' 
-                    : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 {m}
               </button>
@@ -340,7 +341,7 @@ export default function Home() {
           <select
             value={sortOrder}
             onChange={handleSortChange}
-            className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg border border-zinc-700 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+            className="bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           >
             {sortOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -352,7 +353,7 @@ export default function Home() {
       </div>
 
       {/* Letters Grid */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {isLoading ? (
           <div className="text-center py-8">
             <div className="heart-loading"></div>
@@ -369,53 +370,67 @@ export default function Home() {
                 ref={index === letters.length - 1 ? lastLetterElementRef : undefined}
                 className={`letter-card ${letter.colorClass} cursor-pointer hover:border-[#9333EA]`}
                 onClick={() => router.push(`/letter/${letter.id}`)}
+                style={{ 
+                  animationDelay: `${index * 0.05}s`,
+                  height: `${Math.min(Math.max(letter.message.length * 0.3, 220), 320)}px`
+                }}
               >
-                <div className="text-center mb-2">
-                  <h3 className="font-bold text-base text-zinc-200">
+                <div className="text-center mb-2 relative">
+                  <span className="absolute right-0 top-0 text-xl">💌</span>
+                  <h3 className="font-bold text-base">
                     To: {letter.member}
                   </h3>
                 </div>
                 
-                <div className="letter-card-content mb-2">
-                  <p className="text-sm text-zinc-300 leading-relaxed">
+                <div className="letter-card-content">
+                  <p className="text-sm leading-relaxed">
                     {letter.message}
                   </p>
                 </div>
                 
-                <div className="mt-auto pt-2 border-t border-zinc-800 flex justify-between items-center">
-                  <span className="text-xs text-zinc-400 italic">
-                    {new Date(letter.timestamp.toDate()).toLocaleDateString()}
-                  </span>
-                  
-                  <button
-                    onClick={(e) => handleLike(e, letter.id)}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full 
-                      ${likedLetters.has(letter.id) 
-                        ? 'bg-[#C688F8] text-white' 
-                        : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'} 
-                      transition-colors duration-300`}
-                  >
-                    <svg 
-                      className={`w-4 h-4 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
-                      fill="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <span className="text-xs font-medium">
-                      {letter.likes ?? 0}
+                <div className="mt-auto pt-2 border-t">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs italic text-gray-600">
+                      {new Date(letter.timestamp.toDate()).toLocaleDateString()}
                     </span>
-                  </button>
-
-                  <p className="text-right text-xs font-medium text-zinc-300">
-                    {letter.name}
-                  </p>
+                    <p className="text-right text-xs font-medium text-gray-800">
+                      {letter.name}
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleLike(e, letter.id);
+                      }}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full 
+                        ${likedLetters.has(letter.id) 
+                          ? 'bg-[#C688F8] text-white' 
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600'} 
+                        transition-colors duration-300 relative z-10`}
+                    >
+                      <svg 
+                        className={`w-4 h-4 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
+                        fill="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      </svg>
+                      {(letter.likes ?? 0) > 0 && (
+                        <span className="text-xs font-medium">
+                          {letter.likes}
+                        </span>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </Masonry>
         ) : (
-          <div className="text-center py-8 text-zinc-400">
+          <div className="text-center py-8 text-gray-500">
             No letters found{selectedMember !== 'all' ? ` for ${selectedMember}` : ''}. 
             Be the first to write one!
           </div>

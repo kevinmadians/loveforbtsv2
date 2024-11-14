@@ -3,59 +3,139 @@
 @tailwind utilities;
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #ffffff !important;
+  --foreground: #000000 !important;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000000;
-    --foreground: #ffffff;
+    --background: #ffffff !important;
+    --foreground: #000000 !important;
   }
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: var(--background) !important;
 }
 
 .letter-card {
-  @apply p-4 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden;
+  @apply p-4 rounded-2xl relative;
   margin-bottom: 1rem;
   break-inside: avoid;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: cardFadeIn 0.3s ease-in-out forwards;
+  opacity: 0;
+  min-height: 220px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+.letter-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    rgba(147, 51, 234, 0.6) 50%,
+    transparent 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.letter-card::after {
+  display: none;
+}
+
+.letter-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 30px -10px rgba(147, 51, 234, 0.2),
+    0 0 20px rgba(147, 51, 234, 0.1);
+}
+
+.letter-card:hover::before {
+  opacity: 1;
+  animation: borderRotate 3s linear infinite;
+}
+
+@keyframes borderRotate {
+  0%, 100% {
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(147, 51, 234, 0.6) 50%,
+      transparent 100%
+    );
+  }
+  50% {
+    background: linear-gradient(
+      225deg,
+      transparent 0%,
+      rgba(147, 51, 234, 0.6) 50%,
+      transparent 100%
+    );
+  }
 }
 
 .letter-card-content {
   @apply flex-grow overflow-hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
-  min-height: 4.5rem;
-  color: #e4e4e7;
+  min-height: 4rem;
+  max-height: 9rem;
+  color: #1a1a1a !important;
+  line-height: 1.5;
+  margin: 0.75rem 0;
+  pointer-events: none;
+  font-size: 1rem;
 }
 
 .card-1 { 
-  background-color: #FFB5A7; /* Soft Coral Pink */
+  background: linear-gradient(135deg, #FFB5A7 0%, #FFD1C9 100%);
+  box-shadow: 0 8px 20px -8px rgba(255, 181, 167, 0.3);
   border: none;
   color: #1a1a1a;
 }
 .card-2 { 
-  background-color: #B5E2FA; /* Sky Blue */
+  background: linear-gradient(135deg, #B5E2FA 0%, #D4EDFD 100%);
+  box-shadow: 0 8px 20px -8px rgba(181, 226, 250, 0.3);
   border: none;
   color: #1a1a1a;
 }
 .card-3 { 
-  background-color: #C688F8; /* Updated Purple */
+  background: linear-gradient(135deg, #C688F8 0%, #D4A4FF 100%);
+  box-shadow: 0 8px 20px -8px rgba(198, 136, 248, 0.3);
   border: none;
   color: white;
 }
 .card-4 { 
-  background-color: #98F5E1; /* Mint */
+  background: linear-gradient(135deg, #98F5E1 0%, #B8F8EB 100%);
+  box-shadow: 0 8px 20px -8px rgba(152, 245, 225, 0.3);
   border: none;
   color: #1a1a1a;
 }
 .card-5 { 
-  background-color: #FDE68A; /* Warm Yellow */
+  background: linear-gradient(135deg, #FDE68A 0%, #FFF1BF 100%);
+  box-shadow: 0 8px 20px -8px rgba(253, 230, 138, 0.3);
   border: none;
   color: #1a1a1a;
 }
@@ -76,26 +156,28 @@ body {
 .card-5 .text-zinc-300,
 .card-5 .text-zinc-400,
 .card-5 .text-zinc-200 {
-  color: #1a1a1a;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .card-3 .letter-card-content,
 .card-3 .text-zinc-300,
 .card-3 .text-zinc-400,
 .card-3 .text-zinc-200 {
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .letter-card .border-zinc-800,
 .letter-card .border-t {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  padding-top: 0.5rem;
+  margin-top: auto;
 }
 
 .input-style {
   @apply w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none;
-  background-color: #18181b;
-  border-color: #27272a;
-  color: #ffffff;
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+  color: #000000;
 }
 
 @keyframes heartbeat {
@@ -143,11 +225,14 @@ body {
 .masonry-grid {
   display: flex;
   width: auto;
-  margin-left: -1rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+  padding: 0 0.5rem;
 }
 
 .masonry-grid_column {
-  padding-left: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   background-clip: padding-box;
 }
 
@@ -184,4 +269,97 @@ body {
 
 a[href*="ko-fi"]:hover {
   animation: pulse 2s infinite;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .masonry-grid {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+  
+  .masonry-grid_column {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    width: 50% !important;
+  }
+
+  .letter-card {
+    min-height: 160px;
+    max-height: 260px;
+  }
+  
+  .letter-card-content {
+    -webkit-line-clamp: 3;
+    min-height: 3rem;
+    max-height: 5rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .masonry-grid_column {
+    width: 100% !important;
+  }
+}
+
+.letter-card .flex.justify-center {
+  position: relative;
+  z-index: 10;
+}
+
+.letter-card button {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* Update text colors for the footer area */
+.letter-card .border-t {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  padding-top: 0.5rem;
+  margin-top: auto;
+}
+
+/* Add specific text color styles for the footer text */
+.letter-card .border-t .text-gray-600,
+.letter-card .border-t .text-gray-800,
+.letter-card .text-xs.italic.text-gray-600,
+.letter-card .text-xs.font-medium.text-gray-800,
+.letter-card .text-right.text-xs.font-medium.text-gray-800 {
+  color: #000000 !important;
+}
+
+/* Override any other text color classes in the footer */
+.letter-card .border-t * {
+  color: #000000 !important;
+}
+
+/* Keep the like button text colors unchanged */
+.letter-card .border-t button *:not(.text-[#C688F8]) {
+  color: inherit !important;
 }
