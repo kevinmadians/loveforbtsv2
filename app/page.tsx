@@ -266,7 +266,22 @@ export default function Home() {
         >
           Love for BTS
         </button>
-        <p className="text-gray-600 italic text-base">Pour your love for BTS into words that inspire and unite ARMY worldwide💜</p>
+        <p className="text-gray-600 italic text-base">
+          Pour your love for BTS into words that inspire and unite ARMYs worldwide
+        </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 mb-8">
+        <div className="bg-[#9333EA]/10 border border-[#9333EA]/20 rounded-xl p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-[#9333EA] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-[#9333EA]/90 leading-relaxed">
+              Dear ARMY! Please share your message with care! Also avoid including any sensitive or personal information like phone numbers, addresses, or any private things. Please use appropriate language. 
+            </p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4">

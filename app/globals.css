@@ -463,3 +463,227 @@ a[href*="ko-fi"]:hover {
 .letter-card:hover .text-xl {
   transform: scale(1.2) rotate(5deg);
 }
+
+/* Add specific styles for the detail page letter content */
+.text-lg.leading-relaxed.whitespace-pre-wrap {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Remove any line clamp styles for the detail page */
+[class*='letter-card-content']:not(.masonry-grid *) {
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  display: block !important;
+}
+
+/* Add animated background elements */
+.bg-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.4;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(147, 51, 234, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(198, 136, 248, 0.08) 0%, transparent 25%);
+}
+
+/* Floating stickers */
+.floating-stickers::before,
+.floating-stickers::after {
+  content: '💜';
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  animation: float 20s linear infinite;
+  opacity: 0.5;
+}
+
+.floating-stickers::before {
+  top: 15%;
+  left: 5%;
+  animation-delay: -5s;
+}
+
+.floating-stickers::after {
+  top: 75%;
+  right: 5%;
+  animation-delay: -15s;
+}
+
+/* Add more stickers with pseudo elements */
+.sticker-1, .sticker-2, .sticker-3, .sticker-4 {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.4;
+  font-size: 20px;
+  animation: float 15s ease-in-out infinite;
+}
+
+.sticker-1 { content: '✨'; top: 25%; left: 8%; animation-delay: -2s; }
+.sticker-2 { content: '🎵'; top: 40%; right: 8%; animation-delay: -7s; }
+.sticker-3 { content: '💫'; bottom: 30%; left: 12%; animation-delay: -11s; }
+.sticker-4 { content: '⭐'; bottom: 20%; right: 12%; animation-delay: -4s; }
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+  75% {
+    transform: translateY(15px) rotate(-5deg);
+  }
+}
+
+/* Subtle gradient animation */
+.gradient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0.1;
+  background: linear-gradient(45deg, #ffffff, #f3e8ff, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Add sparkle effect */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  background: white;
+  border-radius: 50%;
+  animation: sparkle 4s linear infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* Share buttons styling */
+.share-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.5rem;
+}
+
+.share-button-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.share-button-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.share-button-small svg {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .share-buttons-container {
+    gap: 12px;
+    padding: 0.75rem;
+  }
+
+  .share-button-small {
+    width: 42px;
+    height: 42px;
+  }
+
+  .share-button-small svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Update Sticky Footer Styles */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(147, 51, 234, 0.08);
+  padding: 0.75rem 1rem;
+  z-index: 50;
+  box-shadow: 
+    0 -4px 20px rgba(147, 51, 234, 0.03),
+    0 -1px 6px rgba(147, 51, 234, 0.02);
+}
+
+/* Add subtle animation for the glass effect */
+@supports (backdrop-filter: blur(12px)) {
+  .sticky-footer {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+}
+
+/* Ensure text remains readable on glass background */
+.sticky-footer p {
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.support-button {
+  background: linear-gradient(135deg, #FF5E5B, #FF7A8B);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 94, 91, 0.2);
+}
+
+.support-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 94, 91, 0.3);
+}
+
+.support-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Add padding to main content to prevent footer overlap */
+.main-content {
+  padding-bottom: 5rem;
+}
