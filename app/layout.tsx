@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Reenie_Beanie } from "next/font/google";
+import { Reenie_Beanie, Fredoka } from "next/font/google";
 import "./globals.css";
 
 const reenie = Reenie_Beanie({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-reenie",
+});
+
+const fredoka = Fredoka({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-fredoka",
 });
 
 export const metadata: Metadata = {
@@ -45,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${reenie.variable}`}>{children}</body>
+      <body className={`${reenie.variable} ${fredoka.variable} font-fredoka`}>{children}</body>
     </html>
   );
 }
