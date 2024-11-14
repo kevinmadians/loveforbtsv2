@@ -33,6 +33,16 @@ type CachedSpotifyTrack = {
   lastUpdated: number;
 };
 
+type SpotifyAPITrack = {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: {
+    name: string;
+    images: { url: string }[];
+  };
+};
+
 const getAccessToken = async () => {
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
@@ -84,11 +94,11 @@ export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
       if (!response.ok) throw new Error('Failed to search songs');
 
       const data = await response.json();
-      let tracks = data.tracks?.items || [];
+      let tracks = (data.tracks?.items || []) as SpotifyAPITrack[];
 
       // Filter for BTS and members
-      tracks = tracks.filter(track => 
-        track.artists.some(artist => 
+      tracks = tracks.filter((track: SpotifyAPITrack) => 
+        track.artists.some((artist: { name: string }) => 
           ARTISTS.some(validArtist => {
             const artistName = artist.name.toLowerCase();
             const validArtistName = validArtist.toLowerCase();
@@ -155,12 +165,12 @@ export const updateSpotifySongsCache = async () => {
       if (!response.ok) continue;
 
       const data = await response.json();
-      const tracks = data.tracks?.items || [];
+      const tracks = data.tracks?.items || [] as SpotifyAPITrack[];
       
       // Filter and map tracks
       const artistTracks = tracks
-        .filter(track => 
-          track.artists.some(trackArtist => 
+        .filter((track: SpotifyAPITrack) => 
+          track.artists.some((trackArtist: { name: string }) => 
             ARTISTS.some(validArtist => {
               const artistName = trackArtist.name.toLowerCase();
               const validArtistName = validArtist.toLowerCase();
