@@ -7,6 +7,12 @@ export type Letter = {
   message: string;
   timestamp: Timestamp;
   colorClass: string;
-  likes: number;
+  likes?: number;
   likedBy?: string[];
+  spotifyTrack?: {
+    id: string;
+    name: string;
+    artist: string;
+    albumCover: string;
+  };
 } 

@@ -24,9 +24,21 @@ import {
 } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Masonry from 'react-masonry-css';
+import SpotifySearch from './components/SpotifySearch';
+import SpotifyPlayer from './components/SpotifyPlayer';
+
+type SpotifyTrack = {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: {
+    name: string;
+    images: { url: string }[];
+  };
+};
 
 const membersList = ['BTS', 'RM', 'Jin', 'Suga', 'J-Hope', 'Jimin', 'V', 'Jungkook'];
-const colorClasses = ['card-1', 'card-2', 'card-3', 'card-4', 'card-5'];
+const colorClasses = ['card-1', 'card-2', 'card-3', 'card-4', 'card-5', 'card-6'];
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
@@ -54,6 +66,7 @@ export default function Home() {
   const router = useRouter();
 
   const [likedLetters, setLikedLetters] = useState<Set<string>>(new Set());
+  const [selectedTrack, setSelectedTrack] = useState<SpotifyTrack | null>(null);
 
   useEffect(() => {
     const savedLikes = localStorage.getItem('likedLetters');
@@ -165,26 +178,30 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (name.length > 20) {
-      alert('Name must be 20 characters or less');
-      return;
-    }
-    
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
-    
     try {
-      const newLetter = {
+      const colorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+      const letterData = {
         name,
         member,
         message,
         timestamp: Timestamp.now(),
-        colorClass: colorClasses[Math.floor(Math.random() * colorClasses.length)],
+        colorClass,
         likes: 0,
-        likedBy: []
+        likedBy: [],
+        ...(selectedTrack && {
+          spotifyTrack: {
+            id: selectedTrack.id,
+            name: selectedTrack.name,
+            artist: selectedTrack.artists[0]?.name,
+            albumCover: selectedTrack.album.images[0]?.url
+          }
+        })
       };
 
-      await addDoc(collection(db, 'letters'), newLetter);
+      const docRef = await addDoc(collection(db, 'letters'), letterData);
       
       setName('');
       setMessage('');
@@ -254,61 +271,87 @@ export default function Home() {
     <div className="min-h-screen p-8 bg-white">
       {/* Hero Section */}
       <header className="text-center mb-16">
-        <h1 className="font-reenie text-6xl mb-4 animate-fade-in text-gray-800">
-          Letters for BTS
-        </h1>
-        <p className="text-xl text-gray-600">Share your heartfelt messages with BTS</p>
+        <button 
+          onClick={() => router.push('/')} 
+          className="font-reenie font-bold text-6xl mb-4 animate-fade-in text-gray-800 hover:text-[#9333EA] transition-colors duration-300"
+        >
+          Love for BTS
+        </button>
+        <p className="text-gray-600 italic text-base">Pour your love for BTS into words that inspire and unite ARMY worldwide💜</p>
       </header>
 
       {/* Form Section */}
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-16 space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
+        <div className="message-box p-4 rounded-xl mb-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+            </div>
+            <div>
+              <p className="text-sm text-center text-white font-medium mb-1">
+                Dear ARMY!
+              </p>
+              <p className="text-sm text-center text-white/90">
+                Please share your message with care! Also avoid including any sensitive or personal information like phone numbers, addresses, or any private thing. Please use appropriate language.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div>
           <input
             type="text"
-            placeholder="Your Name"
-            className="input-style"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Your Name"
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
             required
-            maxLength={20}
-            disabled={isSubmitting}
           />
         </div>
-        
+
         <div>
           <select
-            className="input-style"
             value={member}
             onChange={(e) => setMember(e.target.value)}
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none appearance-none bg-white"
             required
-            disabled={isSubmitting}
           >
             {membersList.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
         </div>
-        
+
         <div>
           <textarea
-            placeholder="Write your message (max 1000 characters)"
-            className="input-style min-h-[200px]"
-            maxLength={1000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            placeholder="Write your heartfelt message... (1000 characters max)"
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none min-h-[150px]"
             required
-            disabled={isSubmitting}
           />
         </div>
-        
-        <button
-          type="submit"
-          className={`w-full bg-[#C688F8] text-white py-3 rounded-lg hover:bg-[#B674E7] 
-            transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed`}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Sending...' : 'Send Letter'}
-        </button>
+
+        <div>
+          <SpotifySearch
+            onSelect={(track) => {
+              setSelectedTrack(track);
+            }}
+            selectedTrack={selectedTrack}
+            required={false}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isSubmitting || !selectedTrack || !name || !message || !member}
+            className={`bg-[#9333EA] text-white px-8 py-3 rounded-full font-medium 
+              transition-all duration-300 transform hover:scale-105 
+              ${(isSubmitting || !selectedTrack || !name || !message || !member) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#7928CA]'}`}
+          >
+            {isSubmitting ? 'Sending...' : 'Send Letter'}
+          </button>
+        </div>
       </form>
 
       {/* Filters Section */}
@@ -372,7 +415,7 @@ export default function Home() {
                 onClick={() => router.push(`/letter/${letter.id}`)}
                 style={{ 
                   animationDelay: `${index * 0.05}s`,
-                  height: `${Math.min(Math.max(letter.message.length * 0.3, 220), 320)}px`
+                  minHeight: letter.spotifyTrack ? '240px' : '220px'
                 }}
               >
                 <div className="text-center mb-2 relative">
@@ -388,42 +431,61 @@ export default function Home() {
                   </p>
                 </div>
                 
-                <div className="mt-auto pt-2 border-t">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs italic text-gray-600">
-                      {new Date(letter.timestamp.toDate()).toLocaleDateString()}
-                    </span>
-                    <p className="text-right text-xs font-medium text-gray-800">
-                      {letter.name}
-                    </p>
-                  </div>
-                  
-                  <div className="flex justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleLike(e, letter.id);
-                      }}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full 
-                        ${likedLetters.has(letter.id) 
-                          ? 'bg-[#C688F8] text-white' 
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600'} 
-                        transition-colors duration-300 relative z-10`}
-                    >
-                      <svg 
-                        className={`w-4 h-4 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
-                        fill="currentColor" 
-                        viewBox="0 0 24 24"
+                <div className="mt-auto">
+                  {letter.spotifyTrack && (
+                    <div className="mt-4 pt-4 border-t border-white/20">
+                      <p className="text-center italic text-xs text-white/80 mb-2">Favorite song</p>
+                      <div className="flex items-center gap-2 justify-center">
+                        <img 
+                          src={letter.spotifyTrack.albumCover}
+                          alt={letter.spotifyTrack.name}
+                          className="w-10 h-10 rounded-md"
+                        />
+                        <div>
+                          <p className="font-medium text-white text-xs truncate max-w-[150px]">
+                            {letter.spotifyTrack.name}
+                          </p>
+                          <p className="text-[10px] text-white/80 truncate max-w-[150px]">
+                            {letter.spotifyTrack.artist}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] text-black italic">
+                        {new Date(letter.timestamp.toDate()).toLocaleDateString()}
+                      </span>
+                      <p className="text-right text-xs font-medium text-gray-950">
+                        {letter.name}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-center">
+                      <button
+                        onClick={(e) => handleLike(e, letter.id)}
+                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full 
+                          ${likedLetters.has(letter.id) 
+                            ? 'bg-[#C688F8] text-white' 
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'} 
+                          transition-colors duration-300`}
                       >
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                      {(letter.likes ?? 0) > 0 && (
-                        <span className="text-xs font-medium">
-                          {letter.likes}
-                        </span>
-                      )}
-                    </button>
+                        <svg 
+                          className={`w-3 h-3 ${likedLetters.has(letter.id) ? 'text-white' : 'text-[#C688F8]'}`}
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        {letter.likes > 0 && (
+                          <span className="text-[10px] font-medium">
+                            {letter.likes}
+                          </span>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

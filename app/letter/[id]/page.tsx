@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { db } from '../../firebase/config';
 import { doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Letter } from '../../types/Letter';
+import SpotifyPlayer from '../../components/SpotifyPlayer';
 
 export default function LetterPage() {
   const params = useParams();
@@ -131,33 +132,39 @@ export default function LetterPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 flex items-center justify-center bg-white">
+    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-white">
+      <div className="text-center max-w-4xl mx-auto mb-8">
+        <button 
+          onClick={() => router.push('/')} 
+          className="font-reenie font-bold text-6xl mb-4 animate-fade-in text-gray-800 hover:text-[#9333EA] transition-colors duration-300"
+        >
+          Love for BTS
+        </button>
+        <p className="text-gray-600 italic text-base">
+          Pour your love for BTS into words that inspire and unite ARMY worldwide💜
+        </p>
+      </div>
+
       <div className="w-full max-w-2xl mx-auto">
         <div className={`p-6 rounded-2xl shadow-xl ${letter.colorClass}`}>
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-4">
+            <h3 className="text-2xl font-bold text-white">
               To: {letter.member}
-            </h1>
+            </h3>
           </div>
 
-          <div className="mb-6 relative">
-            <span className="absolute -left-2 -top-4 text-4xl text-[#9333EA]/40 font-serif">
-              &ldquo;
-            </span>
-            <p className="whitespace-pre-wrap text-gray-800 leading-relaxed text-lg px-4">
+          <div className="letter-card-content text-white">
+            <p className="text-lg leading-relaxed">
               {letter.message}
             </p>
-            <span className="absolute -right-2 -bottom-4 text-4xl text-[#9333EA]/40 font-serif">
-              &rdquo;
-            </span>
           </div>
 
-          <div className="flex flex-col pt-4 border-t border-[#9333EA]/20">
+          <div className="flex flex-col pt-4 border-t border-black/20">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-xs text-gray-600">
+              <span className="font-style: italic text-sm text-black/50">
                 {new Date(letter.timestamp.toDate()).toLocaleDateString()}
               </span>
-              <p className="text-base font-semibold text-gray-800">
+              <p className="text-base font-semibold text-black">
                 By: {letter.name}
               </p>
             </div>
@@ -178,18 +185,35 @@ export default function LetterPage() {
                 >
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
-                {(letter.likes ?? 0) > 0 && (
-                  <span className={`text-lg font-medium ${isLiked ? 'text-white' : 'text-[#C688F8]'}`}>
-                    {letter.likes}
-                  </span>
-                )}
+                <span className={`text-lg font-medium ${isLiked ? 'text-white' : 'text-[#C688F8]'}`}>
+                  {letter.likes ?? 0}
+                </span>
               </button>
             </div>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-[#9333EA]/20">
-            <p className="text-center text-sm text-gray-600 mb-4 animate-fade-in">
-              Share this heartfelt message with fellow ARMYs 💜
+          {letter.spotifyTrack && (
+            <div className="mt-8 pt-4 border-t border-white/20">
+              <p className="text-center text-sm text-white/80 mb-4">Favorite song</p>
+              <div className="flex items-center justify-center gap-4">
+                <img 
+                  src={letter.spotifyTrack.albumCover}
+                  alt={letter.spotifyTrack.name}
+                  className="w-16 h-16 rounded-md"
+                />
+                <div>
+                  <p className="font-medium text-white text-lg">{letter.spotifyTrack.name}</p>
+                  <p className="text-sm text-white/80">{letter.spotifyTrack.artist}</p>
+                </div>
+              </div>
+              <p className="text-center text-sm text-white/80 mt-6 mb-3">Listen</p>
+              <SpotifyPlayer songId={letter.spotifyTrack.id} />
+            </div>
+          )}
+
+          <div className="mt-8 pt-4 border-t border-black/20">
+            <p className="text-center font-style: italic text-sm text-black-600 mb-4 animate-fade-in">
+              Share this letters with all ARMYs
             </p>
             <div className="flex justify-center gap-2 mb-6">
               <button
@@ -254,7 +278,7 @@ export default function LetterPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              Write Your Own Letter
+              Create Now
             </button>
           </div>
         </div>

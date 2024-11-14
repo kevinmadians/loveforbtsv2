@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm py-3 px-4 flex flex-col items-center justify-center gap-2 z-50">
       <p className="text-black/90 text-xs text-center max-w-lg">
-        Support this project to help keep it running and add more features! 💜
+        Support this project to keep it running and add more features!
       </p>
       
       <a
