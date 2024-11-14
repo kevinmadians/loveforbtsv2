@@ -25,7 +25,7 @@ import {
 import { useRouter } from 'next/navigation';
 import Masonry from 'react-masonry-css';
 import SpotifySearch from './components/SpotifySearch';
-import SpotifyPlayer from './components/SpotifyPlayer';
+import SpotifyPlayer from '@/app/components/SpotifyPlayer';
 
 type SpotifyTrack = {
   id: string;
@@ -257,20 +257,9 @@ export default function Home() {
     }
   };
 
-  // Update breakpoint columns object
-  const breakpointColumnsObj = {
-    default: 4,    // >= 1280px
-    1280: 3,       // >= 1024px
-    1024: 3,       // >= 768px
-    768: 2,        // >= 640px
-    640: 2,        // >= 380px
-    380: 1         // < 380px
-  };
-
   return (
-    <div className="min-h-screen p-8 bg-white">
-      {/* Hero Section */}
-      <header className="text-center mb-16">
+    <main className="min-h-screen bg-white py-8">
+      <div className="text-center max-w-4xl mx-auto mb-6 px-4">
         <button 
           onClick={() => router.push('/')} 
           className="font-reenie font-bold text-6xl mb-4 animate-fade-in text-gray-800 hover:text-[#9333EA] transition-colors duration-300"
@@ -278,42 +267,26 @@ export default function Home() {
           Love for BTS
         </button>
         <p className="text-gray-600 italic text-base">Pour your love for BTS into words that inspire and unite ARMY worldwide💜</p>
-      </header>
+      </div>
 
-      {/* Form Section */}
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-        <div className="message-box p-4 rounded-xl mb-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-            </div>
-            <div>
-              <p className="text-sm text-center text-white font-medium mb-1">
-                Dear ARMY!
-              </p>
-              <p className="text-sm text-center text-white/90">
-                Please share your message with care! Also avoid including any sensitive or personal information like phone numbers, addresses, or any private thing. Please use appropriate language.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div>
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4">
+        <div className="mb-3">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your Name"
-            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+            placeholder="Your name"
             required
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           />
         </div>
 
-        <div>
+        <div className="mb-3">
           <select
             value={member}
             onChange={(e) => setMember(e.target.value)}
-            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none appearance-none bg-white"
             required
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           >
             {membersList.map((m) => (
               <option key={m} value={m}>{m}</option>
@@ -321,17 +294,17 @@ export default function Home() {
           </select>
         </div>
 
-        <div>
+        <div className="mb-3">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Write your heartfelt message... (1000 characters max)"
-            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none min-h-[150px]"
+            placeholder="Write your message..."
             required
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none resize-none h-32"
           />
         </div>
 
-        <div>
+        <div className="mb-8">
           <SpotifySearch
             onSelect={(track) => {
               setSelectedTrack(track);
@@ -341,11 +314,11 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-center mt-6 mb-16 sm:mb-8">
           <button
             type="submit"
             disabled={isSubmitting || !selectedTrack || !name || !message || !member}
-            className={`bg-[#9333EA] text-white px-8 py-3 rounded-full font-medium 
+            className={`w-[85%] sm:w-auto bg-[#9333EA] text-white px-8 py-3.5 rounded-full font-medium 
               transition-all duration-300 transform hover:scale-105 
               ${(isSubmitting || !selectedTrack || !name || !message || !member) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#7928CA]'}`}
           >
@@ -354,10 +327,9 @@ export default function Home() {
         </div>
       </form>
 
-      {/* Filters Section */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <div className="flex flex-wrap gap-2">
+      <div className="max-w-7xl mx-auto mb-12 px-4 mt-4">
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-wrap justify-center gap-3 w-full">
             <button
               onClick={() => handleMemberFilter('all')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
@@ -384,7 +356,7 @@ export default function Home() {
           <select
             value={sortOrder}
             onChange={handleSortChange}
-            className="bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+            className="w-[90%] sm:w-auto bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           >
             {sortOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -395,15 +367,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Letters Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4">
         {isLoading ? (
           <div className="text-center py-8">
             <div className="heart-loading"></div>
           </div>
         ) : letters.length > 0 ? (
           <Masonry
-            breakpointCols={breakpointColumnsObj}
+            breakpointCols={{
+              default: 4,
+              1280: 3,
+              1024: 2,
+              768: 2,
+              640: 1
+            }}
             className="masonry-grid"
             columnClassName="masonry-grid_column"
           >
@@ -411,12 +388,8 @@ export default function Home() {
               <div
                 key={letter.id}
                 ref={index === letters.length - 1 ? lastLetterElementRef : undefined}
-                className={`letter-card ${letter.colorClass} cursor-pointer hover:border-[#9333EA]`}
+                className={`letter-card ${letter.colorClass} p-4 sm:p-6`}
                 onClick={() => router.push(`/letter/${letter.id}`)}
-                style={{ 
-                  animationDelay: `${index * 0.05}s`,
-                  minHeight: letter.spotifyTrack ? '240px' : '220px'
-                }}
               >
                 <div className="text-center mb-2 relative">
                   <span className="absolute right-0 top-0 text-xl">💌</span>
@@ -498,6 +471,6 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

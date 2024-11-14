@@ -241,14 +241,11 @@ body {
 .masonry-grid {
   display: flex;
   width: auto;
-  margin-left: -0.5rem;
-  margin-right: -0.5rem;
-  padding: 0 0.5rem;
+  margin-left: -16px;
 }
 
 .masonry-grid_column {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 16px;
   background-clip: padding-box;
 }
 
@@ -311,30 +308,74 @@ a[href*="ko-fi"]:hover {
 }
 
 @media (max-width: 640px) {
-  .masonry-grid {
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
-  }
-  
-  .masonry-grid_column {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    width: 50% !important;
+  .letter-card {
+    margin-bottom: 1rem;
+    padding: 1rem !important;
+    min-height: 200px;
   }
 
-  .letter-card {
-    min-height: 180px;
+  .masonry-grid {
+    margin-left: 0 !important;
   }
-  
+
+  .masonry-grid_column {
+    padding-left: 0 !important;
+  }
+
+  /* Improved spacing for mobile filters */
+  .flex.flex-col > .flex.flex-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Center align filter buttons on mobile */
+  .flex.flex-wrap.justify-center {
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+  }
+
+  /* Full width select on mobile with proper spacing */
+  select.w-\[85\%\] {
+    margin: 0.5rem auto 1.5rem;
+  }
+
+  /* Send button container spacing */
+  .flex.justify-center.mt-8.mb-16 {
+    margin-top: 2rem !important;
+    margin-bottom: 4rem !important;
+  }
+
+  /* Filter section spacing */
+  .space-y-6 {
+    margin-top: 1rem;
+  }
+
+  /* Adjust button sizes for better touch targets */
+  button {
+    min-height: 44px;
+  }
+
+  /* Adjust letter card content for mobile */
   .letter-card-content {
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0.75rem 0;
+  }
+
+  /* Adjust spacing for mobile buttons */
+  .letter-card button {
+    padding: 0.5rem 1rem;
   }
 }
 
+/* Ensure proper spacing between cards on mobile */
 @media (max-width: 380px) {
   .masonry-grid_column {
     width: 100% !important;
+  }
+  
+  .letter-card {
+    margin-bottom: 1.25rem !important;
   }
 }
 
