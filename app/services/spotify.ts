@@ -178,7 +178,7 @@ export const updateSpotifySongsCache = async () => {
             })
           )
         )
-        .map(track => ({
+        .map((track: SpotifyAPITrack) => ({
           id: track.id,
           name: track.name,
           artistName: track.artists[0].name,
