@@ -36,13 +36,77 @@ body {
   width: 100%;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.letter-card:hover {
+  transform: translateY(-8px) scale(1.02);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+    0 25px 30px -12px rgba(147, 51, 234, 0.25),
+    0 18px 20px -15px rgba(147, 51, 234, 0.15);
+  z-index: 2;
 }
 
 .letter-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+/* Member-specific background images */
+.card-bts::before {
+  background-image: url('/images/background/bts.jpg');
+}
+
+.card-rm::before {
+  background-image: url('/images/background/rm.jpg');
+}
+
+.card-jin::before {
+  background-image: url('/images/background/jin.jpg');
+}
+
+.card-suga::before {
+  background-image: url('/images/background/suga.jpg');
+}
+
+.card-jhope::before {
+  background-image: url('/images/background/jhope.jpg');
+}
+
+.card-jimin::before {
+  background-image: url('/images/background/jimin.jpg');
+}
+
+.card-v::before {
+  background-image: url('/images/background/v.jpg');
+}
+
+.card-jungkook::before {
+  background-image: url('/images/background/jungkook.jpg');
+}
+
+/* Background colors */
+.card-bts, .card-rm, .card-jin, .card-v, .card-jungkook {
+  background-color: rgba(198, 215, 142, 0.95);
+}
+
+.card-suga, .card-jhope, .card-jimin {
+  background-color: rgba(183, 206, 219, 0.95);
+}
+
+/* Hover effects */
+.letter-card:hover::before {
+  opacity: 0.25;
+}
+
+.letter-card::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -63,20 +127,7 @@ body {
   transition: opacity 0.4s ease;
 }
 
-.letter-card::after {
-  display: none;
-}
-
-.letter-card:hover {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 
-    0 25px 30px -12px rgba(147, 51, 234, 0.25),
-    0 18px 20px -15px rgba(147, 51, 234, 0.15),
-    0 0 0 1px rgba(147, 51, 234, 0.1);
-  z-index: 2;
-}
-
-.letter-card:hover::before {
+.letter-card:hover::after {
   opacity: 1;
   animation: borderGlow 2s ease-in-out infinite;
 }
@@ -155,6 +206,20 @@ body {
   color: white;
 }
 
+.card-green {
+  background: #C6D78E;
+  box-shadow: 0 8px 20px -8px rgba(198, 215, 142, 0.3);
+  border: none;
+  color: black;
+}
+
+.card-blue {
+  background: #B7CEDB;
+  box-shadow: 0 8px 20px -8px rgba(183, 206, 219, 0.3);
+  border: none;
+  color: black;
+}
+
 .card-1 .letter-card-content,
 .card-1 .text-zinc-300,
 .card-1 .text-zinc-400,
@@ -178,7 +243,15 @@ body {
 .card-6 .letter-card-content,
 .card-6 .text-zinc-300,
 .card-6 .text-zinc-400,
-.card-6 .text-zinc-200 {
+.card-6 .text-zinc-200,
+.card-green .letter-card-content,
+.card-green .text-zinc-300,
+.card-green .text-zinc-400,
+.card-green .text-zinc-200,
+.card-blue .letter-card-content,
+.card-blue .text-zinc-300,
+.card-blue .text-zinc-400,
+.card-blue .text-zinc-200 {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -287,11 +360,11 @@ a[href*="ko-fi"]:hover {
 @keyframes cardFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.98);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -458,10 +531,6 @@ a[href*="ko-fi"]:hover {
 /* Add subtle animation for the emoji */
 .letter-card .text-xl {
   transition: transform 0.3s ease;
-}
-
-.letter-card:hover .text-xl {
-  transform: scale(1.2) rotate(5deg);
 }
 
 /* Add specific styles for the detail page letter content */
@@ -784,4 +853,143 @@ a[href*="ko-fi"]:hover {
 @keyframes shimmerDivider {
   0% { left: -100%; }
   100% { left: 100%; }
+}
+
+/* Detail page card styles */
+.detail-card {
+  @apply p-6 rounded-2xl;
+  position: relative;
+  margin-bottom: 1rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.detail-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  z-index: -1;
+}
+
+/* Original card color classes for homepage */
+.card-1 {
+  background-color: #5A79D6; /* Royal Blue */
+}
+
+.card-2 {
+  background-color: #D38135; /* Warm Orange */
+}
+
+.card-3 {
+  background-color: #8C68C8; /* Purple */
+}
+
+.card-4 {
+  background-color: #CD6A65; /* Coral Red */
+}
+
+.card-5 {
+  background-color: #378C77; /* Teal */
+}
+
+.card-6 {
+  background-color: #5A79D6; /* Royal Blue (repeat) */
+}
+
+/* Background colors for detail page */
+.detail-bts {
+  background: linear-gradient(to bottom right, rgba(90, 121, 214, 0.95), rgba(90, 121, 214, 0.85));
+}
+
+.detail-rm {
+  background: linear-gradient(to bottom right, rgba(211, 129, 53, 0.95), rgba(211, 129, 53, 0.85));
+}
+
+.detail-jin {
+  background: linear-gradient(to bottom right, rgba(140, 104, 200, 0.95), rgba(140, 104, 200, 0.85));
+}
+
+.detail-v {
+  background: linear-gradient(to bottom right, rgba(205, 106, 101, 0.95), rgba(205, 106, 101, 0.85));
+}
+
+.detail-jungkook {
+  background: linear-gradient(to bottom right, rgba(55, 140, 119, 0.95), rgba(55, 140, 119, 0.85));
+}
+
+.detail-suga {
+  background: linear-gradient(to bottom right, rgba(90, 121, 214, 0.95), rgba(90, 121, 214, 0.85));
+}
+
+.detail-jhope {
+  background: linear-gradient(to bottom right, rgba(211, 129, 53, 0.95), rgba(211, 129, 53, 0.85));
+}
+
+.detail-jimin {
+  background: linear-gradient(to bottom right, rgba(140, 104, 200, 0.95), rgba(140, 104, 200, 0.85));
+}
+
+.detail-card:hover::before {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+/* Text styles for detail page */
+.detail-card h3,
+.detail-card p {
+  position: relative;
+  z-index: 2;
+}
+
+/* Content styles */
+.detail-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Member-specific background images for detail page */
+.detail-bts::before {
+  background-image: url('/images/background/bts.png');
+}
+
+.detail-rm::before {
+  background-image: url('/images/background/rm.png');
+}
+
+.detail-jin::before {
+  background-image: url('/images/background/jin.png');
+}
+
+.detail-suga::before {
+  background-image: url('/images/background/suga.png');
+}
+
+.detail-jhope::before {
+  background-image: url('/images/background/jhope.png');
+}
+
+.detail-jimin::before {
+  background-image: url('/images/background/jimin.png');
+}
+
+.detail-v::before {
+  background-image: url('/images/background/v.png');
+}
+
+.detail-jungkook::before {
+  background-image: url('/images/background/jungkook.png');
 }

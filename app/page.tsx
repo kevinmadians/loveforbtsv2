@@ -37,7 +37,17 @@ type SpotifyTrack = {
   };
 };
 
-const membersList = ['BTS', 'RM', 'Jin', 'Suga', 'J-Hope', 'Jimin', 'V', 'Jungkook'];
+const members = [
+  { id: 'BTS', name: 'BTS', image: '/images/profile/bts.jpg' },
+  { id: 'RM', name: 'RM', image: '/images/profile/rm.jpg' },
+  { id: 'Jin', name: 'Jin', image: '/images/profile/jin.jpg' },
+  { id: 'Suga', name: 'Suga', image: '/images/profile/suga.jpg' },
+  { id: 'J-Hope', name: 'J-Hope', image: '/images/profile/jhope.jpg' },
+  { id: 'Jimin', name: 'Jimin', image: '/images/profile/jimin.jpg' },
+  { id: 'V', name: 'V', image: '/images/profile/v.jpg' },
+  { id: 'Jungkook', name: 'Jungkook', image: '/images/profile/jungkook.jpg' }
+];
+
 const colorClasses = ['card-1', 'card-2', 'card-3', 'card-4', 'card-5', 'card-6'];
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
@@ -48,7 +58,7 @@ const sortOptions = [
 export default function Home() {
   const [letters, setLetters] = useState<Letter[]>([]);
   const [name, setName] = useState('');
-  const [member, setMember] = useState(membersList[0]);
+  const [member, setMember] = useState(members[0].id);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -67,6 +77,9 @@ export default function Home() {
 
   const [likedLetters, setLikedLetters] = useState<Set<string>>(new Set());
   const [selectedTrack, setSelectedTrack] = useState<SpotifyTrack | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const lettersContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedLikes = localStorage.getItem('likedLetters');
@@ -181,8 +194,9 @@ export default function Home() {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    const colorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+
     try {
-      const colorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
       const letterData = {
         name,
         member,
@@ -205,8 +219,14 @@ export default function Home() {
       
       setName('');
       setMessage('');
-      setMember(membersList[0]);
+      setMember(members[0].id);
       setSelectedMember(member);
+
+      // Scroll to letters section with smooth animation
+      lettersContainerRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
       
     } catch (error) {
       console.error('Error adding letter:', error);
@@ -296,17 +316,49 @@ export default function Home() {
           />
         </div>
 
-        <div className="mb-3">
-          <select
-            value={member}
-            onChange={(e) => setMember(e.target.value)}
-            required
-            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+        <div className="mb-3 relative">
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full p-3 pl-12 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none text-left bg-white relative"
           >
-            {membersList.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <img 
+                src={members.find(m => m.id === member)?.image} 
+                alt={member}
+                className="w-8 h-8 rounded-full"
+              />
+            </div>
+            {member}
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </button>
+          
+          {isOpen && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+              {members.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => {
+                    setMember(m.id);
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                >
+                  <img 
+                    src={m.image} 
+                    alt={m.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span>{m.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mb-3">
@@ -334,16 +386,37 @@ export default function Home() {
             type="submit"
             disabled={isSubmitting || !selectedTrack || !name || !message || !member}
             className={`w-[85%] sm:w-auto bg-[#9333EA] text-white px-8 py-3.5 rounded-full font-medium 
-              transition-all duration-300 transform hover:scale-105 
+              transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2
               ${(isSubmitting || !selectedTrack || !name || !message || !member) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#7928CA]'}`}
           >
-            {isSubmitting ? 'Sending...' : 'Send Letter'}
+            <span>{isSubmitting ? 'Sending...' : 'Send Letter'}</span>
+            {!isSubmitting && <span className="text-xl">💌</span>}
           </button>
         </div>
       </form>
 
       <div className="max-w-7xl mx-auto mb-12 px-4 mt-4">
         <div className="flex flex-col items-center gap-6">
+          <div className="w-full max-w-md mb-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by sender name..."
+                className="w-full p-3 pl-10 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
+              />
+              <svg 
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
           <div className="flex flex-wrap justify-center gap-3 w-full">
             <button
               onClick={() => handleMemberFilter('all')}
@@ -354,16 +427,16 @@ export default function Home() {
             >
               All
             </button>
-            {membersList.map((m) => (
+            {members.map((m) => (
               <button
-                key={m}
-                onClick={() => handleMemberFilter(m)}
+                key={m.id}
+                onClick={() => handleMemberFilter(m.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  ${selectedMember === m 
+                  ${selectedMember === m.id 
                     ? 'bg-[#9333EA] text-white' 
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
-                {m}
+                {m.name}
               </button>
             ))}
           </div>
@@ -382,7 +455,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4" ref={lettersContainerRef}>
         {isLoading ? (
           <div className="text-center py-8">
             <div className="heart-loading"></div>
@@ -399,16 +472,23 @@ export default function Home() {
             className="masonry-grid"
             columnClassName="masonry-grid_column"
           >
-            {letters.map((letter, index) => (
+            {letters
+              .filter(letter => 
+                searchQuery ? letter.name.toLowerCase().includes(searchQuery.toLowerCase()) : true
+              )
+              .map((letter, index) => (
               <div
                 key={letter.id}
                 ref={index === letters.length - 1 ? lastLetterElementRef : undefined}
-                className={`letter-card ${letter.colorClass}`}
+                className={`letter-card ${colorClasses[index % colorClasses.length]} ${
+                  letter.spotifyTrack ? 'has-track' : ''
+                }`}
                 onClick={() => router.push(`/letter/${letter.id}`)}
               >
-                <div className="flex flex-col h-full">
-                  <div className="mb-3">
-                    <h3 className="text-xl font-bold mb-2">
+                <div className="flex flex-col h-full pointer-events-none">
+                  <div className="mb-3 relative">
+                    <span className="absolute top-2 right-2 text-2xl transform transition-transform duration-300 hover:scale-125 pointer-events-auto cursor-default">💌</span>
+                    <h3 className="text-xl font-bold mb-2 pointer-events-none">
                       To: {letter.member}
                     </h3>
                     <div className="w-12 h-0.5 bg-white/30 rounded-full mb-3" />

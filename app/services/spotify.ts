@@ -43,6 +43,10 @@ type SpotifyAPITrack = {
   };
 };
 
+// Memory cache for quick access to recently searched tracks
+const memoryCache: { [key: string]: { data: SpotifyTrack[], timestamp: number } } = {};
+const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+
 const getAccessToken = async () => {
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
@@ -75,75 +79,83 @@ const getAccessToken = async () => {
 export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
   if (!query) return [];
   
+  const cacheKey = query.toLowerCase();
+  
+  // Check memory cache first
+  if (memoryCache[cacheKey] && 
+      Date.now() - memoryCache[cacheKey].timestamp < CACHE_DURATION) {
+    return memoryCache[cacheKey].data;
+  }
+
   try {
-    // First try to search in Firebase
+    // Check Firebase cache
     const songsRef = collection(db, 'spotify_songs');
-    const snapshot = await getDocs(songsRef);
+    const cacheSnapshot = await getDocs(songsRef);
     
-    if (snapshot.empty) {
-      // If no cached songs, fall back to direct Spotify API search
-      const token = await getAccessToken();
-      const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=50`;
-      
-      const response = await fetch(searchUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Failed to search songs');
-
-      const data = await response.json();
-      let tracks = (data.tracks?.items || []) as SpotifyAPITrack[];
-
-      // Filter for BTS and members
-      tracks = tracks.filter((track: SpotifyAPITrack) => 
-        track.artists.some((artist: { name: string }) => 
-          ARTISTS.some(validArtist => {
-            const artistName = artist.name.toLowerCase();
-            const validArtistName = validArtist.toLowerCase();
-            return artistName.includes(validArtistName) || validArtistName.includes(artistName);
-          })
+    const cachedSongs = cacheSnapshot.docs
+      .map(doc => doc.data() as SpotifyTrack)
+      .filter(track => 
+        track.name.toLowerCase().includes(cacheKey) ||
+        track.artists.some(artist => 
+          artist.name.toLowerCase().includes(cacheKey)
         )
       );
 
-      return tracks.slice(0, 20).map(track => ({
-        id: track.id,
-        name: track.name,
-        artists: track.artists,
-        album: {
-          name: track.album.name,
-          images: track.album.images
-        }
-      }));
+    if (cachedSongs.length > 0) {
+      // Update memory cache and return cached results
+      memoryCache[cacheKey] = {
+        data: cachedSongs,
+        timestamp: Date.now()
+      };
+      return cachedSongs;
     }
 
-    // Search in cached songs
-    const searchTerms = query.toLowerCase().split(' ').filter(word => word.length > 0);
-    const tracks = snapshot.docs
-      .map(doc => doc.data() as CachedSpotifyTrack)
-      .filter(track => 
-        searchTerms.some(term => 
-          track.name.toLowerCase().includes(term) ||
-          track.artistName.toLowerCase().includes(term) ||
-          track.albumName.toLowerCase().includes(term)
+    // If no cache hit, fetch from Spotify API
+    const token = await getAccessToken();
+    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=50`;
+    
+    const response = await fetch(searchUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to search songs');
+
+    const data = await response.json();
+    let tracks = (data.tracks?.items || []) as SpotifyAPITrack[];
+
+    // Filter for BTS and members (preserve existing filter)
+    tracks = tracks.filter((track: SpotifyAPITrack) => 
+      track.artists.some(artist => 
+        ARTISTS.some(name => 
+          artist.name.toLowerCase().includes(name.toLowerCase())
         )
       )
-      .slice(0, 20);
+    );
 
-    return tracks.map(track => ({
-      id: track.id,
-      name: track.name,
-      artists: [{ name: track.artistName }],
-      album: {
-        name: track.albumName,
-        images: [{ url: track.albumCover }]
-      }
-    }));
+    // Update both caches
+    const batch = writeBatch(db);
+    tracks.forEach((track) => {
+      const docRef = doc(songsRef, track.id);
+      batch.set(docRef, track);
+    });
+    
+    // Don't wait for cache update to complete
+    batch.commit().catch(error => 
+      console.error('Error updating song cache:', error)
+    );
 
+    // Update memory cache
+    memoryCache[cacheKey] = {
+      data: tracks,
+      timestamp: Date.now()
+    };
+
+    return tracks;
   } catch (error) {
     console.error('Error searching songs:', error);
-    return [];
+    throw error;
   }
 };
 
