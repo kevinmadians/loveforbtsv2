@@ -148,9 +148,9 @@ export default function LetterPage() {
     // Store elements to be modified
     const headerSection = document.querySelector('.text-center.max-w-4xl') as HTMLElement;
     const writeButton = cardElement.querySelector('.mt-4.text-center > button') as HTMLElement;
-    const shareContainer = cardElement.querySelector('.share-buttons-container')?.parentElement;
-    const shareText = cardElement.querySelector('p.text-center.italic.text-sm.text-black\\/70');
-    const listenText = cardElement.querySelector('p.text-center.text-sm.text-white\\/80.mt-6.mb-3');
+    const shareContainer = cardElement.querySelector('.share-buttons-container')?.parentElement as HTMLElement;
+    const shareText = cardElement.querySelector('p.text-center.italic.text-sm.text-black\\/70') as HTMLElement;
+    const listenText = cardElement.querySelector('p.text-center.text-sm.text-white\\/80.mt-6.mb-3') as HTMLElement;
     const loveButton = document.querySelector('div.w-full.max-w-2xl.mx-auto.relative.z-10 > div > div.flex.flex-col.pt-4.border-t.border-black\\/20 > div.flex.justify-center > button') as HTMLElement;
     const loveButtonContainer = loveButton?.closest('.flex.justify-center') as HTMLElement;
     const overlayElements = cardElement.querySelectorAll('.gradient-bg, .bg-pattern, .floating-stickers');
@@ -282,9 +282,9 @@ export default function LetterPage() {
     // Store elements to be modified
     const headerSection = document.querySelector('.text-center.max-w-4xl') as HTMLElement;
     const writeButton = cardElement.querySelector('.mt-4.text-center > button') as HTMLElement;
-    const shareContainer = cardElement.querySelector('.share-buttons-container')?.parentElement;
-    const shareText = cardElement.querySelector('p.text-center.italic.text-sm.text-black\\/70');
-    const listenText = cardElement.querySelector('p.text-center.text-sm.text-white\\/80.mt-6.mb-3');
+    const shareContainer = cardElement.querySelector('.share-buttons-container')?.parentElement as HTMLElement;
+    const shareText = cardElement.querySelector('p.text-center.italic.text-sm.text-black\\/70') as HTMLElement;
+    const listenText = cardElement.querySelector('p.text-center.text-sm.text-white\\/80.mt-6.mb-3') as HTMLElement;
     const loveButton = document.querySelector('div.w-full.max-w-2xl.mx-auto.relative.z-10 > div > div.flex.flex-col.pt-4.border-t.border-black\\/20 > div.flex.justify-center > button') as HTMLElement;
     const loveButtonContainer = loveButton?.closest('.flex.justify-center') as HTMLElement;
     const overlayElements = cardElement.querySelectorAll('.gradient-bg, .bg-pattern, .floating-stickers');
