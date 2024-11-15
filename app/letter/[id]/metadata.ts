@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { db } from '../../firebase';
+import { db } from '../../../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
