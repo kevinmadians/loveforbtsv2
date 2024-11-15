@@ -289,7 +289,7 @@ export default function LetterPage() {
     const loveButtonContainer = loveButton?.closest('.flex.justify-center') as HTMLElement;
     const overlayElements = cardElement.querySelectorAll('.gradient-bg, .bg-pattern, .floating-stickers');
     const quoteElements = cardElement.querySelectorAll('.text-white\\/20.transform');
-    
+
     // Store original styles
     const originalStyles = new Map();
     overlayElements.forEach((el) => {
@@ -380,7 +380,7 @@ export default function LetterPage() {
         canvas.toBlob((blob) => resolve(blob!), 'image/png');
       });
 
-      if (navigator.share && platform === 'native') {
+      if (typeof window !== 'undefined' && 'navigator' in window && 'share' in navigator && platform === 'native') {
         try {
           const file = new File([blob], `letter-to-${letter.member.toLowerCase()}.png`, { type: 'image/png' });
           await navigator.share({
@@ -538,17 +538,17 @@ export default function LetterPage() {
                   className="px-4 py-2 bg-[#4C0083] text-white rounded-full hover:bg-[#6F00BC] transition-colors duration-300 flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
                   Download
                 </button>
-                {navigator.share && (
+                {typeof window !== 'undefined' && 'navigator' in window && 'share' in navigator && (
                   <button
                     onClick={() => handleShareImage('native')}
                     className="px-4 py-2 bg-[#4C0083] text-white rounded-full hover:bg-[#6F00BC] transition-colors duration-300 flex items-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                     </svg>
                     Share Image
                   </button>
