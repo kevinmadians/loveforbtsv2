@@ -217,16 +217,15 @@ export default function Home() {
 
       const docRef = await addDoc(collection(db, 'letters'), letterData);
       
+      // Reset form
       setName('');
       setMessage('');
       setMember(members[0].id);
       setSelectedMember(member);
-
-      // Scroll to letters section with smooth animation
-      lettersContainerRef.current?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+      setSelectedTrack(null);
+      
+      // Redirect to the letter detail page
+      router.push(`/letter/${docRef.id}`);
       
     } catch (error) {
       console.error('Error adding letter:', error);

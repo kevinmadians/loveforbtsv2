@@ -8,6 +8,8 @@ import { Letter } from '../../types/Letter';
 import SpotifyPlayer from '../../components/SpotifyPlayer';
 import html2canvas from 'html2canvas';
 
+import type { Metadata } from "next";
+
 export default function LetterPage() {
   const params = useParams();
   const router = useRouter();
@@ -153,6 +155,7 @@ export default function LetterPage() {
     const listenText = cardElement.querySelector('p.text-center.text-sm.text-white\\/80.mt-6.mb-3') as HTMLElement;
     const loveButton = document.querySelector('div.w-full.max-w-2xl.mx-auto.relative.z-10 > div > div.flex.flex-col.pt-4.border-t.border-black\\/20 > div.flex.justify-center > button') as HTMLElement;
     const loveButtonContainer = loveButton?.closest('.flex.justify-center') as HTMLElement;
+    const createButton = document.querySelector('div.w-full.max-w-2xl.mx-auto.relative.z-10 > div > div.mt-4.text-center > button') as HTMLElement;
     const overlayElements = cardElement.querySelectorAll('.gradient-bg, .bg-pattern, .floating-stickers');
     const quoteElements = cardElement.querySelectorAll('.text-white\\/20.transform');
     
@@ -176,97 +179,239 @@ export default function LetterPage() {
     if (loveButtonContainer) {
       originalStyles.set(loveButtonContainer, loveButtonContainer.style.cssText);
     }
+    if (createButton) {
+      originalStyles.set(createButton, createButton.style.cssText);
+    }
     
     let watermark: HTMLElement | null = null;
 
     try {
-      // Temporarily hide elements and adjust overlay opacity
+      // Hide non-essential elements
       if (headerSection) headerSection.style.display = 'none';
-      if (writeButton) {
-        writeButton.style.opacity = '0';
-        writeButton.style.visibility = 'hidden';
-      }
+      if (writeButton) writeButton.style.display = 'none';
       if (shareContainer) shareContainer.style.display = 'none';
       if (shareText) shareText.style.display = 'none';
       if (listenText) listenText.style.display = 'none';
-      if (loveButtonContainer) {
-        loveButtonContainer.style.display = 'none';
-        loveButtonContainer.style.height = '0';
-        loveButtonContainer.style.overflow = 'hidden';
-        loveButtonContainer.style.opacity = '0';
-        loveButtonContainer.style.visibility = 'hidden';
-      }
-      if (loveButton) {
-        loveButton.style.display = 'none';
-        loveButton.style.height = '0';
-        loveButton.style.overflow = 'hidden';
-        loveButton.style.opacity = '0';
-        loveButton.style.visibility = 'hidden';
-      }
-      overlayElements.forEach((el) => {
-        (el as HTMLElement).style.opacity = '0.3';
-      });
+      if (loveButtonContainer) loveButtonContainer.style.display = 'none';
+      if (loveButton) loveButton.style.display = 'none';
+      if (createButton) createButton.style.display = 'none';
 
-      // Make quote elements more visible in the output
+      // Store original styles for restoration
+      const originalCardStyles = {
+        width: cardElement.style.width,
+        transform: cardElement.style.transform,
+        position: cardElement.style.position,
+        margin: cardElement.style.margin,
+        padding: cardElement.style.padding,
+        display: cardElement.style.display,
+        flexDirection: cardElement.style.flexDirection,
+        background: cardElement.style.background,
+        backgroundColor: cardElement.style.backgroundColor,
+        minHeight: cardElement.style.minHeight
+      };
+
+      // Set up card element for capture
+      cardElement.style.width = '800px';
+      cardElement.style.transform = 'none';
+      cardElement.style.position = 'relative';
+      cardElement.style.margin = '0 auto';
+      cardElement.style.padding = '2rem';
+      cardElement.style.display = 'flex';
+      cardElement.style.flexDirection = 'column';
+      cardElement.style.backgroundColor = '#C688F8';
+      cardElement.style.minHeight = '1200px';
+
+      // Create and position gradient background
+      const gradientBg = cardElement.querySelector('.gradient-bg') as HTMLElement;
+      if (gradientBg) {
+        gradientBg.style.position = 'absolute';
+        gradientBg.style.top = '0';
+        gradientBg.style.left = '0';
+        gradientBg.style.width = '100%';
+        gradientBg.style.height = '100%';
+        gradientBg.style.opacity = '1';
+        gradientBg.style.background = 'linear-gradient(135deg, #C688F8 0%, #B674E7 100%)';
+        gradientBg.style.zIndex = '0';
+      }
+
+      // Position pattern background
+      const patternBg = cardElement.querySelector('.bg-pattern') as HTMLElement;
+      if (patternBg) {
+        patternBg.style.position = 'absolute';
+        patternBg.style.top = '0';
+        patternBg.style.left = '0';
+        patternBg.style.width = '100%';
+        patternBg.style.height = '100%';
+        patternBg.style.opacity = '0.1';
+        patternBg.style.zIndex = '1';
+      }
+
+      // Position floating stickers
+      const stickers = cardElement.querySelector('.floating-stickers') as HTMLElement;
+      if (stickers) {
+        stickers.style.position = 'absolute';
+        stickers.style.top = '0';
+        stickers.style.left = '0';
+        stickers.style.width = '100%';
+        stickers.style.height = '100%';
+        stickers.style.opacity = '0.3';
+        stickers.style.zIndex = '2';
+      }
+
+      // Make quote elements more visible
       quoteElements.forEach((el) => {
-        (el as HTMLElement).style.opacity = '0.4';
-        (el as HTMLElement).style.color = 'rgba(255, 255, 255, 0.4)';
+        const element = el as HTMLElement;
+        element.style.opacity = '0.4';
+        element.style.color = 'rgba(255, 255, 255, 0.4)';
+        element.style.position = 'absolute';
+        element.style.zIndex = '3';
       });
-
-      // Adjust card element height to fit content
-      if (cardElement) {
-        const computedHeight = Array.from(cardElement.children)
-          .filter(child => {
-            const style = window.getComputedStyle(child as HTMLElement);
-            return style.display !== 'none' && 
-                   style.visibility !== 'hidden' && 
-                   style.opacity !== '0';
-          })
-          .reduce((total, child) => {
-            const margin = parseInt(window.getComputedStyle(child as HTMLElement).marginBottom || '0');
-            const padding = parseInt(window.getComputedStyle(child as HTMLElement).paddingBottom || '0');
-            return total + (child as HTMLElement).offsetHeight + margin + padding;
-          }, 0);
-        
-        cardElement.style.height = `${computedHeight}px`;
-        cardElement.style.paddingBottom = '2rem'; // Add some padding for the watermark
-      }
 
       // Add watermark
       watermark = addWatermark(cardElement);
+      if (watermark) {
+        watermark.style.zIndex = '10';
+      }
+
+      // Ensure content is visible and properly positioned
+      const letterContent = cardElement.querySelector('.letter-content') as HTMLElement;
+      if (letterContent) {
+        letterContent.style.opacity = '1';
+        letterContent.style.visibility = 'visible';
+        letterContent.style.position = 'relative';
+        letterContent.style.zIndex = '5';
+        letterContent.style.padding = '1rem';
+      }
 
       // Capture the image
       const canvas = await html2canvas(cardElement, {
-        backgroundColor: null,
+        backgroundColor: '#C688F8',
         scale: 2,
         useCORS: true,
-        height: cardElement.offsetHeight // Set explicit height
+        allowTaint: true,
+        logging: true,
+        width: 800,
+        height: 1200,
+        onclone: (clonedDoc) => {
+          const clonedCard = clonedDoc.querySelector('.detail-card') as HTMLElement;
+          if (clonedCard) {
+            // Apply the same styles to cloned element
+            clonedCard.style.width = '800px';
+            clonedCard.style.transform = 'none';
+            clonedCard.style.position = 'relative';
+            clonedCard.style.margin = '0 auto';
+            clonedCard.style.padding = '2rem';
+            clonedCard.style.display = 'flex';
+            clonedCard.style.flexDirection = 'column';
+            clonedCard.style.backgroundColor = '#C688F8';
+            clonedCard.style.minHeight = '1200px';
+
+            // Hide create button in cloned element
+            const clonedCreateButton = clonedDoc.querySelector('div.w-full.max-w-2xl.mx-auto.relative.z-10 > div > div.mt-4.text-center > button') as HTMLElement;
+            if (clonedCreateButton) {
+              clonedCreateButton.style.display = 'none';
+            }
+
+            // Clone background elements with proper styles
+            const clonedGradient = clonedCard.querySelector('.gradient-bg') as HTMLElement;
+            if (clonedGradient) {
+              clonedGradient.style.position = 'absolute';
+              clonedGradient.style.top = '0';
+              clonedGradient.style.left = '0';
+              clonedGradient.style.width = '100%';
+              clonedGradient.style.height = '100%';
+              clonedGradient.style.opacity = '1';
+              clonedGradient.style.background = 'linear-gradient(135deg, #C688F8 0%, #B674E7 100%)';
+              clonedGradient.style.zIndex = '0';
+            }
+
+            const clonedPattern = clonedCard.querySelector('.bg-pattern') as HTMLElement;
+            if (clonedPattern) {
+              clonedPattern.style.position = 'absolute';
+              clonedPattern.style.top = '0';
+              clonedPattern.style.left = '0';
+              clonedPattern.style.width = '100%';
+              clonedPattern.style.height = '100%';
+              clonedPattern.style.opacity = '0.1';
+              clonedPattern.style.zIndex = '1';
+            }
+
+            const clonedStickers = clonedCard.querySelector('.floating-stickers') as HTMLElement;
+            if (clonedStickers) {
+              clonedStickers.style.position = 'absolute';
+              clonedStickers.style.top = '0';
+              clonedStickers.style.left = '0';
+              clonedStickers.style.width = '100%';
+              clonedStickers.style.height = '100%';
+              clonedStickers.style.opacity = '0.3';
+              clonedStickers.style.zIndex = '2';
+            }
+
+            // Ensure all content is visible and positioned correctly
+            const elements = clonedCard.getElementsByTagName('*');
+            Array.from(elements).forEach((el) => {
+              const element = el as HTMLElement;
+              if (element.style.display !== 'none') {
+                element.style.opacity = '1';
+                element.style.visibility = 'visible';
+              }
+            });
+
+            // Position content in cloned element
+            const clonedContent = clonedCard.querySelector('.letter-content') as HTMLElement;
+            if (clonedContent) {
+              clonedContent.style.position = 'relative';
+              clonedContent.style.zIndex = '5';
+              clonedContent.style.padding = '1rem';
+            }
+
+            // Position quotes in cloned element
+            const clonedQuotes = clonedCard.querySelectorAll('.text-white\\/20.transform');
+            clonedQuotes.forEach((el) => {
+              const element = el as HTMLElement;
+              element.style.opacity = '0.4';
+              element.style.color = 'rgba(255, 255, 255, 0.4)';
+              element.style.position = 'absolute';
+              element.style.zIndex = '3';
+            });
+          }
+        }
       });
-      
-      const dataUrl = canvas.toDataURL('image/png');
+
+      // Convert to PNG and download
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
       link.download = `letter-to-${letter.member.toLowerCase()}.png`;
       link.href = dataUrl;
       link.click();
+
+      // Restore original card styles
+      Object.entries(originalCardStyles).forEach(([property, value]) => {
+        cardElement.style[property as any] = value;
+      });
+
     } catch (error) {
       console.error('Error downloading letter:', error);
       alert('Failed to download letter. Please try again.');
     } finally {
-      // Restore original styles and remove watermark
+      // Restore original styles
       if (headerSection) headerSection.style.display = '';
-      if (writeButton) writeButton.style.cssText = originalStyles.get(writeButton);
+      if (writeButton) writeButton.style.cssText = originalStyles.get(writeButton) || '';
       if (shareContainer) shareContainer.style.display = '';
       if (shareText) shareText.style.display = '';
       if (listenText) listenText.style.display = '';
-      if (loveButton) loveButton.style.cssText = originalStyles.get(loveButton);
-      if (loveButtonContainer) loveButtonContainer.style.cssText = originalStyles.get(loveButtonContainer);
-      if (cardElement) cardElement.style.cssText = originalStyles.get(cardElement);
+      if (loveButton) loveButton.style.cssText = originalStyles.get(loveButton) || '';
+      if (loveButtonContainer) loveButtonContainer.style.cssText = originalStyles.get(loveButtonContainer) || '';
+      if (cardElement) cardElement.style.cssText = originalStyles.get(cardElement) || '';
+      if (createButton) createButton.style.cssText = originalStyles.get(createButton) || '';
+      
       overlayElements.forEach((el) => {
-        (el as HTMLElement).style.cssText = originalStyles.get(el);
+        (el as HTMLElement).style.cssText = originalStyles.get(el) || '';
       });
       quoteElements.forEach((el) => {
-        (el as HTMLElement).style.cssText = originalStyles.get(el);
+        (el as HTMLElement).style.cssText = originalStyles.get(el) || '';
       });
+      
       if (watermark && watermark.parentElement) {
         watermark.parentElement.removeChild(watermark);
       }
@@ -369,11 +514,78 @@ export default function LetterPage() {
       // Add watermark
       watermark = addWatermark(cardElement);
 
-      const canvas = await html2canvas(cardElement, {
-        backgroundColor: null,
+      // Set fixed dimensions for the output
+      const targetWidth = 800;
+      const targetHeight = 1200;
+
+      // Get the actual content size after all transformations
+      const contentBox = cardElement.getBoundingClientRect();
+      const currentHeight = contentBox.height;
+      const currentWidth = contentBox.width;
+
+      // Calculate scale to fit the content properly
+      const scaleToFit = Math.min(
+        targetWidth / currentWidth,
+        targetHeight / currentHeight
+      ) * 0.9; // Add 10% padding for better visibility
+
+      // Create a wrapper div for proper scaling and positioning
+      const wrapper = document.createElement('div');
+      wrapper.style.width = `${targetWidth}px`;
+      wrapper.style.height = `${targetHeight}px`;
+      wrapper.style.position = 'fixed';
+      wrapper.style.left = '-9999px';
+      wrapper.style.top = '0';
+      wrapper.style.background = 'white';
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.justifyContent = 'center';
+      wrapper.style.overflow = 'visible';
+      
+      // Clone the card element to avoid modifying the original
+      const clonedCard = cardElement.cloneNode(true) as HTMLElement;
+      
+      // Apply scaling transform
+      clonedCard.style.transform = `scale(${scaleToFit})`;
+      clonedCard.style.transformOrigin = 'center center';
+      clonedCard.style.width = `${currentWidth}px`;
+      clonedCard.style.height = `${currentHeight}px`;
+      clonedCard.style.position = 'relative';
+      clonedCard.style.margin = 'auto';
+      clonedCard.style.overflow = 'visible';
+      
+      // Ensure all child elements maintain their styles and visibility
+      const clonedElements = clonedCard.getElementsByTagName('*');
+      Array.from(clonedElements).forEach((element) => {
+        const originalElement = element as HTMLElement;
+        originalElement.style.position = originalElement.style.position || 'relative';
+        originalElement.style.overflow = 'visible';
+        originalElement.style.opacity = originalElement.style.opacity || '1';
+        originalElement.style.visibility = originalElement.style.visibility || 'visible';
+      });
+      
+      wrapper.appendChild(clonedCard);
+      document.body.appendChild(wrapper);
+
+      const canvas = await html2canvas(wrapper, {
+        backgroundColor: 'white',
         scale: 2,
+        width: targetWidth,
+        height: targetHeight,
         useCORS: true,
-        height: cardElement.offsetHeight // Set explicit height
+        logging: false,
+        allowTaint: true,
+        foreignObjectRendering: true,
+        removeContainer: false,
+        onclone: (clonedDoc) => {
+          const clonedWrapper = clonedDoc.querySelector(wrapper.tagName) as HTMLElement;
+          if (clonedWrapper) {
+            clonedWrapper.style.transform = 'none';
+            Array.from(clonedWrapper.getElementsByTagName('*')).forEach((el) => {
+              (el as HTMLElement).style.transform = 'none';
+            });
+          }
+        }
       });
       
       const blob = await new Promise<Blob>((resolve) => {
@@ -528,83 +740,72 @@ export default function LetterPage() {
           )}
 
           <div className="mt-8 pt-4 border-t border-black/20">
-            <p className="text-center italic text-sm text-black/70 mb-4">
-              Share this letter with ARMYs 💜
-            </p>
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-center gap-3">
-                <button
-                  onClick={handleDownload}
-                  className="px-4 py-2 bg-[#4C0083] text-white rounded-full hover:bg-[#6F00BC] transition-colors duration-300 flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Download
-                </button>
-                {typeof window !== 'undefined' && 'navigator' in window && 'share' in navigator && (
-                  <button
-                    onClick={() => handleShareImage('native')}
-                    className="px-4 py-2 bg-[#4C0083] text-white rounded-full hover:bg-[#6F00BC] transition-colors duration-300 flex items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                    </svg>
-                    Share Image
-                  </button>
-                )}
-              </div>
-              <div className="share-buttons-container">
-                <button
-                  onClick={() => handleShare('whatsapp')}
-                  className="share-button-small bg-[#25D366]/90 hover:bg-[#25D366]"
-                  aria-label="Share on WhatsApp"
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                  </svg>
-                </button>
+            <div className="mt-4 text-center">
+              <button
+                onClick={handleDownload}
+                className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 mx-auto"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 16L12 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 13L11.913 15.913V15.913C11.961 15.961 12.039 15.961 12.087 15.913V15.913L15 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 15L3 16L3 19C3 20.1046 3.89543 21 5 21L19 21C20.1046 21 21 20.1046 21 19L21 16L21 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Download
+              </button>
+            </div>
 
-                <button
-                  onClick={() => handleShare('telegram')}
-                  className="share-button-small bg-[#0088cc]/90 hover:bg-[#0088cc]"
-                  aria-label="Share on Telegram"
-                >
-                  <svg fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                  </svg>
-                </button>
+            <p className="text-center italic text-sm text-black/70 mt-4">Share this letter with ARMYs 💜</p>
 
-                <button
-                  onClick={() => handleShare('facebook')}
-                  className="share-button-small bg-[#1877F2]/90 hover:bg-[#1877F2]"
-                  aria-label="Share on Facebook"
-                >
-                  <svg fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </button>
+            <div className="share-buttons-container flex justify-center gap-2 mt-2">
+              <button
+                onClick={() => handleShare('whatsapp')}
+                className="share-button-small bg-[#25D366]/90 hover:bg-[#25D366]"
+                aria-label="Share on WhatsApp"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+              </button>
 
-                <button
-                  onClick={() => handleShare('twitter')}
-                  className="share-button-small bg-black/80 hover:bg-black"
-                  aria-label="Share on Twitter"
-                >
-                  <svg fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                </button>
+              <button
+                onClick={() => handleShare('telegram')}
+                className="share-button-small bg-[#0088cc]/90 hover:bg-[#0088cc]"
+                aria-label="Share on Telegram"
+              >
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+            </button>
 
-                <button
-                  onClick={() => handleShare('copy')}
-                  className="share-button-small bg-[#9333EA]/80 hover:bg-[#9333EA]"
-                  aria-label="Copy Link"
-                >
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
-              </div>
+            <button
+              onClick={() => handleShare('facebook')}
+              className="share-button-small bg-[#1877F2]/90 hover:bg-[#1877F2]"
+              aria-label="Share on Facebook"
+            >
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </button>
+
+            <button
+              onClick={() => handleShare('twitter')}
+              className="share-button-small bg-black/80 hover:bg-black"
+              aria-label="Share on Twitter"
+            >
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </button>
+
+              <button
+                onClick={() => handleShare('copy')}
+                className="share-button-small bg-[#9333EA]/80 hover:bg-[#9333EA]"
+                aria-label="Copy Link"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -616,7 +817,7 @@ export default function LetterPage() {
                 shadow-lg hover:shadow-xl flex items-center justify-center mx-auto gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
               </svg>
               Write Now
             </button>

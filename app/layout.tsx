@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Reenie_Beanie, Fredoka } from "next/font/google";
+import { Reenie_Beanie, Fredoka, Inter } from "next/font/google";
 import "./globals.css";
+import Script from 'next/script'
 
 const reenie = Reenie_Beanie({
   weight: "400",
@@ -14,9 +15,52 @@ const fredoka = Fredoka({
   variable: "--font-fredoka",
 });
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
-  title: "Love for BTS",
-  description: "Pour your love for BTS into words that inspire and unite ARMYs worldwide",
+  title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+  description: 'A heartfelt platform where ARMY can write and share their personal letters to BTS. Express your love, gratitude, and support for BTS through meaningful letters.',
+  keywords: 'BTS, ARMY, Love Letters, Fan Letters, 방탄소년단, BTS Letters, ARMY Letters, K-pop, Fan Message',
+  openGraph: {
+    title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+    description: 'Share your heartfelt letters with BTS. Write, design, and share your personal message of love and support.',
+    url: 'https://loveforbts.com',
+    siteName: 'Love for BTS',
+    images: [
+      {
+        url: '/og-image.jpg', 
+        width: 1200,
+        height: 630,
+        alt: 'Love for BTS - Letters from ARMY',
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+    description: 'Share your heartfelt letters with BTS. Write, design, and share your personal message of love and support.',
+    images: ['/og-image.jpg'],
+    creator: '@loveforbts',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-site-verification', 
+  },
+  alternates: {
+    canonical: 'https://loveforbts.com',
+  },
   icons: {
     icon: [
       {
@@ -51,7 +95,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${reenie.variable} ${fredoka.variable} font-fredoka relative`}>
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+        
+        {/* Favicon */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#C688F8" />
+      </head>
+      <body className={`${reenie.variable} ${fredoka.variable} font-fredoka relative ${inter.className}`}>
         <div className="gradient-bg" />
         <div className="bg-pattern" />
         <div className="floating-stickers" />
