@@ -7,7 +7,18 @@ const badWords = [
   'dick', 'blowjob', 'tits', 'boobs', 'handjob', 'cock', 'retard', 
   'spaz', 'cripple', 'lesser', 'wanker', 'slut', 'hoe', 'weed', 
   'cocaine', 'meth', 'heroin', 'pot', 'blunt', 'bong', 'drunk', 
-  'shitfaced', 'pig', 'ugly' , 'nigga', 'niga', 'niggas', 'niggaz' , 'niger'
+  'shitfaced', 'pig', 'ugly', 'nigga', 'niga', 'niggas', 'niggaz', 'niger',
+  'faggot', 'fag', 'dyke', 'homo', 'queer', 'paki', 'pedo', 'pedophile',
+  'rape', 'rapist', 'molest', 'nazi', 'hooker', 'prostitute', 'twat',
+  'pussy', 'thot', 'incel', 'simp', 'tard', 'autist', 'aids', 'std',
+  'milf', 'dilf', 'pawg', 'bdsm', 'bondage', 'fetish', 'hentai',
+  'perv', 'pervert', 'pron', 'p0rn', 'pr0n', 'fuk', 'fuc', 'fux',
+  'sh1t', 'sh!t', 'b!tch', 'b1tch', 'btch', 'azz', 'a$$', '@ss',
+  'vugly', 'ygly', 'fuck', 'fucks', 'idiot', 'idiots', 'shit', 'shits',
+  'dog', 'piss off', 'suck', 'sucker', 'loser', 'bastards', 'bloody',
+  'stupid', 'shame', 'losser', 'shut', 'ass', 'fucking', 'fvcking',
+  'fu*king', 'dumb', 'die', 'cheat', 'cheating', 'fvck',
+  'f*ck', 'fu*k', 'fuc*', 'badass', '💩', '👎', '🤮'
 ];
 
 export const containsBadWords = (text: string): { hasBadWords: boolean; foundWords: string[] } => {
