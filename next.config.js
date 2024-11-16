@@ -5,6 +5,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
+    unoptimized: true, // Add this for Netlify compatibility
   },
   compress: true,
   poweredByHeader: false,
@@ -17,9 +18,8 @@ const nextConfig = {
     optimizeCss: true,
     optimizePackageImports: ['firebase/firestore', 'firebase/auth'],
   },
-  // Add Netlify-specific configuration
-  target: 'serverless',
-  output: 'standalone',
+  // Remove serverless target as it's deprecated in Next.js 12+
+  output: 'export', // Change to export for static site generation
 };
 
 module.exports = nextConfig;
