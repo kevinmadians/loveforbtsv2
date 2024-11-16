@@ -18,8 +18,9 @@ const nextConfig = {
     optimizeCss: true,
     optimizePackageImports: ['firebase/firestore', 'firebase/auth'],
   },
-  // Remove serverless target as it's deprecated in Next.js 12+
-  output: 'export', // Change to export for static site generation
+  // Configure for Netlify deployment
+  trailingSlash: true,
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
