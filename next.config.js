@@ -20,7 +20,8 @@ const nextConfig = {
   },
   // Configure for Netlify deployment
   trailingSlash: true,
-  output: 'standalone',
+  distDir: '.next',
+  generateBuildId: async () => 'build',
 };
 
 module.exports = nextConfig;
