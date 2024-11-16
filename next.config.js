@@ -15,13 +15,13 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['firebase/firestore', 'firebase/auth'],
   },
   // Configure for Netlify deployment
   trailingSlash: true,
   distDir: '.next',
   generateBuildId: async () => 'build',
+  optimizeCss: false, // Disable CSS optimization
 };
 
 module.exports = nextConfig;
