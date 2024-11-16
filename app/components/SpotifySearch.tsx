@@ -110,7 +110,7 @@ export default function SpotifySearch({ onSelect, selectedTrack, required = fals
             className="w-full p-3 text-left rounded-lg border border-gray-200 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#9333EA] focus:border-transparent"
           >
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Your favorite BTS Song</span>
+              <span className="text-gray-500">Your favorite BTS/Members Song</span>
               <svg
                 className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
                 fill="none"
@@ -130,7 +130,7 @@ export default function SpotifySearch({ onSelect, selectedTrack, required = fals
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search BTS songs..."
+                    placeholder="Search BTS/Members songs..."
                     className="w-full p-2 pl-8 rounded-md border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {

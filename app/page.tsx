@@ -60,6 +60,7 @@ export default function Home() {
   const [name, setName] = useState('');
   const [member, setMember] = useState(members[0].id);
   const [message, setMessage] = useState('');
+  const [country, setCountry] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Filter states
@@ -201,6 +202,7 @@ export default function Home() {
         name,
         member,
         message,
+        country,
         timestamp: Timestamp.now(),
         colorClass,
         likes: 0,
@@ -220,6 +222,7 @@ export default function Home() {
       // Reset form
       setName('');
       setMessage('');
+      setCountry('');
       setMember(members[0].id);
       setSelectedMember(member);
       setSelectedTrack(null);
@@ -367,6 +370,16 @@ export default function Home() {
             placeholder="Write your message..."
             required
             className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none resize-none h-32"
+          />
+        </div>
+
+        <div className="mb-3">
+          <input
+            type="text"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            placeholder="Where are you from? (optional)"
+            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           />
         </div>
 
@@ -520,15 +533,18 @@ export default function Home() {
 
                     <div className="pt-2">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] text-black italic">
-                          {new Date(letter.timestamp.toDate()).toLocaleDateString()}
-                        </span>
+                        <div></div>
                         <p className="text-right text-xs font-medium text-gray-950">
                           {letter.name}
+                          {letter.country && (
+                            <span className="text-[10px] text-black/70 ml-1">
+                              from {letter.country}
+                            </span>
+                          )}
                         </p>
                       </div>
                       
-                      <div className="flex justify-center">
+                      <div className="flex flex-col items-center gap-1">
                         <button
                           onClick={(e) => handleLike(e, letter.id)}
                           className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full 
@@ -550,6 +566,9 @@ export default function Home() {
                             </span>
                           )}
                         </button>
+                        <span className="text-[10px] text-black/60 italic">
+                          {new Date(letter.timestamp.toDate()).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   </div>

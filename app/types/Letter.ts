@@ -5,6 +5,7 @@ export type Letter = {
   name: string;
   member: string;
   message: string;
+  country: string;
   timestamp: Timestamp;
   colorClass: string;
   likes: number;
@@ -15,4 +16,4 @@ export type Letter = {
     artist: string;
     albumCover: string;
   };
-} 
+}

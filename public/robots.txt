@@ -1,0 +1,9 @@
+# https://loveforbts.com/robots.txt
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://loveforbts.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

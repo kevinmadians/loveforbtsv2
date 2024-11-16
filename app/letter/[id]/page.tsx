@@ -53,7 +53,7 @@ export default function LetterPage() {
     if (!letter) return;
     
     const letterUrl = `${window.location.origin}/letter/${letter.id}`;
-    const text = `Read this heartfelt letter to ${letter.member} from a fellow ARMY! 💜`;
+    const text = `Read this love letter to ${letter.member} from ARMY! 💜`;
     
     let shareUrl = '';
     
@@ -73,7 +73,7 @@ export default function LetterPage() {
       case 'copy':
         try {
           await navigator.clipboard.writeText(letterUrl);
-          alert('Link copied! Share it with your fellow ARMYs! 💜');
+          alert('Link copied! You can now share it with ARMYs! 💜');
           return;
         } catch (err) {
           console.error('Failed to copy:', err);
@@ -597,7 +597,7 @@ export default function LetterPage() {
           const file = new File([blob], `letter-to-${letter.member.toLowerCase()}.png`, { type: 'image/png' });
           await navigator.share({
             title: `Letter to ${letter.member}`,
-            text: `Read this heartfelt letter to ${letter.member} from a fellow ARMY! 💜`,
+            text: `Read this love letter to ${letter.member} from ARMY! 💜`,
             files: [file]
           });
           return;
@@ -689,11 +689,16 @@ export default function LetterPage() {
 
           <div className="flex flex-col pt-4 border-t border-black/20">
             <div className="flex justify-between items-center mb-4">
-              <span className="font-style: italic text-sm text-black/50">
+              <span className="font-style: italic text-sm text-white/50">
                 {new Date(letter.timestamp.toDate()).toLocaleDateString()}
               </span>
               <p className="text-base font-semibold text-white">
                 By: {letter.name}
+                {letter.country && (
+                  <span className="text-sm text-white/50 ml-1">
+                    from {letter.country}
+                  </span>
+                )}
               </p>
             </div>
             
@@ -810,19 +815,25 @@ export default function LetterPage() {
           </div>
 
           <div className="mt-4 text-center">
-            <button
-              onClick={() => router.push('/')}
-              className="bg-[#C688F8] hover:bg-[#B674E7] text-white px-8 py-3 rounded-full 
-                font-medium transition-all duration-300 transform hover:scale-105 
-                shadow-lg hover:shadow-xl flex items-center justify-center mx-auto gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-              </svg>
-              Write Now
-            </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 mt-8 text-center text-xs text-gray-500 italic">
+        <p>This letter is written by a fan and not affiliated with BTS. 
+        All content represents personal views and emotions of ARMY.</p>
+      </div>
+
+      <div className="mt-8 mb-24 sm:mb-8 text-center">
+        <p className="text-gray-600 mb-3">Want to write your own letter like this?</p>
+        <button
+          onClick={() => router.push('/')}
+          className="bg-[#9333EA] hover:bg-[#B674E7] text-white px-8 py-3 rounded-full 
+            font-medium transition-all duration-300 transform hover:scale-105 
+            shadow-lg hover:shadow-xl flex items-center justify-center mx-auto gap-2"
+        >
+          Write Now
+        </button>
       </div>
     </div>
   );
