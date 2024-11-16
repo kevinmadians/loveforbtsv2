@@ -17,6 +17,9 @@ const nextConfig = {
     optimizeCss: true,
     optimizePackageImports: ['firebase/firestore', 'firebase/auth'],
   },
+  // Add Netlify-specific configuration
+  target: 'serverless',
+  output: 'standalone',
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;
