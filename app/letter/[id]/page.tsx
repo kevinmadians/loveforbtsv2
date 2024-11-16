@@ -1,14 +1,18 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { db } from '../../firebase/config';
 import { doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Letter } from '../../types/Letter';
-import SpotifyPlayer from '../../components/SpotifyPlayer';
-import html2canvas from 'html2canvas';
-
 import type { Metadata } from "next";
+
+// Lazy load non-critical components
+const SpotifyPlayer = dynamic(() => import('../../components/SpotifyPlayer'), {
+  loading: () => <div className="loading-placeholder">Loading player...</div>,
+  ssr: false
+});
 
 export default function LetterPage() {
   const params = useParams();
@@ -16,17 +20,20 @@ export default function LetterPage() {
   const [letter, setLetter] = useState<Letter | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
 
   useEffect(() => {
-    async function fetchLetter() {
+    const fetchLetter = async () => {
       try {
         const letterId = params.id as string;
-        const letterDoc = await getDoc(doc(db, 'letters', letterId));
+        const letterRef = doc(db, 'letters', letterId);
+        const letterDoc = await getDoc(letterRef);
         
         if (letterDoc.exists()) {
+          const data = letterDoc.data();
           setLetter({
             id: letterDoc.id,
-            ...letterDoc.data()
+            ...data
           } as Letter);
         } else {
           router.push('/');
@@ -37,7 +44,7 @@ export default function LetterPage() {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchLetter();
   }, [params.id, router]);
@@ -55,35 +62,60 @@ export default function LetterPage() {
     const letterUrl = `${window.location.origin}/letter/${letter.id}`;
     const text = `Read this love letter to ${letter.member} from ARMY! 💜`;
     
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${letterUrl}`)}`;
-        break;
-      case 'telegram':
-        shareUrl = `https://t.me/share/url?url=${encodeURIComponent(letterUrl)}&text=${encodeURIComponent(text)}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(letterUrl)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${text}\n\n${letterUrl}`)}`;
-        break;
-      case 'copy':
-        try {
-          await navigator.clipboard.writeText(letterUrl);
-          alert('Link copied! You can now share it with ARMYs! 💜');
-          return;
-        } catch (err) {
-          console.error('Failed to copy:', err);
-          alert('Failed to copy link');
-        }
-        return;
-    }
+    if (platform === 'image') {
+      try {
+        // Dynamically import html2canvas only when sharing as image
+        const html2canvas = (await import('html2canvas')).default;
+        const cardElement = document.getElementById('letter-card');
+        if (!cardElement) return;
 
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'noopener,noreferrer');
+        const canvas = await html2canvas(cardElement, {
+          backgroundColor: '#C688F8',
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: true,
+        });
+
+        // Convert to PNG and download
+        const dataUrl = canvas.toDataURL('image/png', 1.0);
+        const link = document.createElement('a');
+        link.download = `letter-to-${letter.member.toLowerCase()}.png`;
+        link.href = dataUrl;
+        link.click();
+
+      } catch (error) {
+        console.error('Error sharing as image:', error);
+      }
+    } else {
+      let shareUrl = '';
+      switch (platform) {
+        case 'whatsapp':
+          shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${letterUrl}`)}`;
+          break;
+        case 'telegram':
+          shareUrl = `https://t.me/share/url?url=${encodeURIComponent(letterUrl)}&text=${encodeURIComponent(text)}`;
+          break;
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(letterUrl)}`;
+          break;
+        case 'twitter':
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${text}\n\n${letterUrl}`)}`;
+          break;
+        case 'copy':
+          try {
+            await navigator.clipboard.writeText(letterUrl);
+            alert('Link copied! You can now share it with ARMYs! 💜');
+            return;
+          } catch (err) {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy link');
+          }
+          return;
+      }
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'noopener,noreferrer');
+      }
     }
   };
 
@@ -284,6 +316,7 @@ export default function LetterPage() {
       }
 
       // Capture the image
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(cardElement, {
         backgroundColor: '#C688F8',
         scale: 2,
@@ -567,6 +600,7 @@ export default function LetterPage() {
       wrapper.appendChild(clonedCard);
       document.body.appendChild(wrapper);
 
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(wrapper, {
         backgroundColor: 'white',
         scale: 2,
@@ -659,7 +693,7 @@ export default function LetterPage() {
           Love for BTS
         </button>
         <p className="text-gray-600 italic text-base">
-          Pour your love for BTS into words that inspire and unite ARMYs worldwide
+          Pour your love into words for BTS that inspire and unite ARMYs worldwide
         </p>
       </div>
       
@@ -678,7 +712,7 @@ export default function LetterPage() {
               <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
             </svg>
             <div className="pl-6 pr-4">
-              <p className="text-lg leading-relaxed whitespace-pre-wrap break-words italic">
+              <p className="text-lg leading-relaxed whitespace-pre-wrap break-words italic text-white/90 bg-black/20 backdrop-blur-[1px] rounded-2xl p-6">
                 {letter.message}
               </p>
             </div>
@@ -693,7 +727,7 @@ export default function LetterPage() {
                 {new Date(letter.timestamp.toDate()).toLocaleDateString()}
               </span>
               <p className="text-base font-semibold text-white">
-                By: {letter.name}
+              By: {letter.name}
                 {letter.country && (
                   <span className="text-sm text-white/50 ml-1">
                     from {letter.country}
@@ -728,7 +762,7 @@ export default function LetterPage() {
           {letter.spotifyTrack && (
             <div className="mt-8 pt-4 border-t border-white/20">
               <p className="text-center text-sm text-white/80 mb-4">Favorite song</p>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-4 bg-black/20 backdrop-blur-[1px] rounded-2xl p-3">
                 <img 
                   src={letter.spotifyTrack.albumCover}
                   alt={letter.spotifyTrack.name}
@@ -825,7 +859,7 @@ export default function LetterPage() {
       </div>
 
       <div className="mt-8 mb-24 sm:mb-8 text-center">
-        <p className="text-gray-600 mb-3">Want to write your own letter like this?</p>
+        <p className="text-gray-600 mb-3">Want to write your own for BTS?</p>
         <button
           onClick={() => router.push('/')}
           className="bg-[#9333EA] hover:bg-[#B674E7] text-white px-8 py-3 rounded-full 

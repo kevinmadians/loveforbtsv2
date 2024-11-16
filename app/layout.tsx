@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: 'Love for BTS',
     images: [
       {
-        url: 'https://loveforbts.com/og-image.jpg',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Love for BTS - Letters from ARMY',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Love for BTS - Letters of Love from ARMY, for BTS',
     description: 'Share your heartfelt letters with BTS. Write, design, and share your personal message of love and support.',
-    images: ['https://loveforbts.com/og-image.jpg'],
+    images: ['/og-image.jpg'],
     creator: '@loveforbts',
   },
   robots: {

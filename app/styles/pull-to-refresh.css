@@ -1,0 +1,38 @@
+.pull-to-refresh-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+  transition: transform 0.2s ease-out;
+}
+
+.pull-to-refresh-spinner {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 8px;
+  border: 2px solid #9333EA;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.pull-to-refresh-spinner.visible {
+  opacity: 0.8;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
