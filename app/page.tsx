@@ -1,5 +1,6 @@
 'use client';
 
+import { SpotifyTrack } from './types/SpotifyTrack';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Letter } from './types/Letter';
