@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import Masonry from 'react-masonry-css';
 import SpotifySearch from './components/SpotifySearch';
 import SpotifyPlayer from '@/app/components/SpotifyPlayer';
+import { containsBadWords } from './utils/wordFilter';
 
 type SpotifyTrack = {
   id: string;
@@ -62,6 +63,7 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const [country, setCountry] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [messageError, setMessageError] = useState<string | null>(null);
   
   // Filter states
   const [selectedMember, setSelectedMember] = useState('all');
@@ -194,6 +196,11 @@ export default function Home() {
     e.preventDefault();
     if (isSubmitting) return;
 
+    const { hasBadWords } = containsBadWords(message);
+    if (hasBadWords) {
+      return;
+    }
+
     setIsSubmitting(true);
     const colorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
 
@@ -314,6 +321,7 @@ export default function Home() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
             required
+            maxLength={20}
             className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           />
         </div>
@@ -366,11 +374,24 @@ export default function Home() {
         <div className="mb-3">
           <textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Write your message..."
+            onChange={(e) => {
+              const newMessage = e.target.value;
+              const { hasBadWords, foundWords } = containsBadWords(newMessage);
+              if (hasBadWords) {
+                setMessageError(`Please avoid using inappropriate words!`);
+              } else {
+                setMessageError(null);
+              }
+              setMessage(newMessage);
+            }}
+            placeholder="Write your message... (1000 characters max)"
             required
-            className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none resize-none h-32"
+            maxLength={1000}
+            className={`w-full p-3 rounded-lg border ${messageError ? 'border-red-500' : 'border-gray-200'} focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none resize-none h-32`}
           />
+          {messageError && (
+            <p className="mt-1 text-sm text-red-500">{messageError}</p>
+          )}
         </div>
 
         <div className="mb-3">
@@ -379,6 +400,7 @@ export default function Home() {
             value={country}
             onChange={(e) => setCountry(e.target.value)}
             placeholder="Where are you from? (optional)"
+            maxLength={15}
             className="w-full p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
           />
         </div>
