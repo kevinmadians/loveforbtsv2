@@ -38,6 +38,10 @@ body {
   background: #ffffff;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   cursor: pointer;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .letter-card:hover {
@@ -385,14 +389,18 @@ a[href*="ko-fi"]:hover {
     margin-bottom: 1rem;
     padding: 1rem !important;
     min-height: 200px;
+    touch-action: pan-y pinch-zoom;
   }
 
   .masonry-grid {
     margin-left: 0 !important;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
   }
 
   .masonry-grid_column {
     padding-left: 0 !important;
+    touch-action: pan-y pinch-zoom;
   }
 
   /* Improved spacing for mobile filters */

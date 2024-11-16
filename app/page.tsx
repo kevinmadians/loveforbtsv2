@@ -99,28 +99,74 @@ export default function Home() {
   const longPressTimeoutRef = useRef<NodeJS.Timeout>();
   const isLongPressRef = useRef(false);
 
+  // Touch interaction state
+  const touchStartRef = useRef({ x: 0, y: 0 });
+  const touchTimeRef = useRef(0);
+  const isTouchMoveRef = useRef(false);
+
   const handleLetterInteraction = useCallback((
     letter: Letter,
     event: React.TouchEvent | React.MouseEvent,
     type: 'start' | 'end'
   ) => {
-    event.preventDefault();
+    // Only handle touch events differently
+    if (event.type.startsWith('mouse')) {
+      if (type === 'end') {
+        router.push(`/letter/${letter.id}`);
+      }
+      return;
+    }
+
+    const touch = (event as React.TouchEvent).touches?.[0] || (event as React.TouchEvent).changedTouches?.[0];
     
     if (type === 'start') {
+      // Record start position and time
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY
+      };
+      touchTimeRef.current = Date.now();
+      isTouchMoveRef.current = false;
+      
       isLongPressRef.current = false;
       longPressTimeoutRef.current = setTimeout(() => {
-        isLongPressRef.current = true;
-        setPreviewLetter(letter);
+        if (!isTouchMoveRef.current) {
+          isLongPressRef.current = true;
+          setPreviewLetter(letter);
+        }
       }, 500);
     } else if (type === 'end') {
       if (longPressTimeoutRef.current) {
         clearTimeout(longPressTimeoutRef.current);
       }
-      if (!isLongPressRef.current) {
+
+      // Calculate touch duration and distance
+      const touchDuration = Date.now() - touchTimeRef.current;
+      const touchEndX = touch.clientX;
+      const touchEndY = touch.clientY;
+      const deltaX = Math.abs(touchEndX - touchStartRef.current.x);
+      const deltaY = Math.abs(touchEndY - touchStartRef.current.y);
+
+      // If it's a quick tap without much movement, navigate to the letter
+      if (!isLongPressRef.current && !isTouchMoveRef.current && touchDuration < 500 && deltaX < 10 && deltaY < 10) {
         router.push(`/letter/${letter.id}`);
       }
     }
   }, [router]);
+
+  const handleTouchMove = useCallback((event: React.TouchEvent) => {
+    const touch = event.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    
+    // If movement is significant, mark as scrolling
+    if (deltaX > 5 || deltaY > 5) {
+      isTouchMoveRef.current = true;
+      if (longPressTimeoutRef.current) {
+        clearTimeout(longPressTimeoutRef.current);
+      }
+    }
+  }, []);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -627,6 +673,7 @@ export default function Home() {
                         letter.spotifyTrack ? 'has-track' : ''
                       }`}
                       onTouchStart={(e) => handleLetterInteraction(letter, e, 'start')}
+                      onTouchMove={handleTouchMove}
                       onTouchEnd={(e) => handleLetterInteraction(letter, e, 'end')}
                       onMouseDown={(e) => handleLetterInteraction(letter, e, 'start')}
                       onMouseUp={(e) => handleLetterInteraction(letter, e, 'end')}
