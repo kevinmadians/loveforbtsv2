@@ -2,16 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { searchSongs } from '../services/spotify';
-
-type SpotifyTrack = {
-  id: string;
-  name: string;
-  artists: { name: string }[];
-  album: {
-    name: string;
-    images: { url: string }[];
-  };
-};
+import { SpotifyTrack } from '../types/SpotifyTrack';
 
 type SpotifySearchProps = {
   onSelect: (track: SpotifyTrack | null) => void;
@@ -19,7 +10,7 @@ type SpotifySearchProps = {
   required?: boolean;
 };
 
-export default function SpotifySearch({ onSelect, selectedTrack, required = false }: SpotifySearchProps) {
+const SpotifySearch = ({ onSelect, selectedTrack, required = false }: SpotifySearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SpotifyTrack[]>([]);
@@ -185,4 +176,6 @@ export default function SpotifySearch({ onSelect, selectedTrack, required = fals
       )}
     </div>
   );
-} 
+};
+
+export { SpotifySearch };

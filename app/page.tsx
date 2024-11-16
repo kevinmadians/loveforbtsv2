@@ -30,7 +30,7 @@ import { containsBadWords } from './utils/wordFilter';
 import { usePullToRefresh } from './hooks/usePullToRefresh';
 import './styles/pull-to-refresh.css';
 
-const SpotifySearch = dynamic(() => import('./components/SpotifySearch'), {
+const SpotifySearch = dynamic(() => import('./components/SpotifySearch').then(mod => mod.SpotifySearch), {
   loading: () => <div className="loading-placeholder">Loading music search...</div>,
   ssr: false
 });
@@ -299,7 +299,7 @@ export default function Home() {
             id: selectedTrack.id,
             name: selectedTrack.name,
             artist: selectedTrack.artists[0]?.name,
-            albumCover: selectedTrack.album.images[0]?.url
+            albumCover: selectedTrack.album?.images?.[0]?.url
           }
         })
       };
