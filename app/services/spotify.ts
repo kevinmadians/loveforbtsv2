@@ -36,6 +36,7 @@ type CachedSpotifyTrack = {
 type SpotifyAPITrack = {
   id: string;
   name: string;
+  uri: string;
   artists: { name: string }[];
   album: {
     name: string;
@@ -125,7 +126,7 @@ export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
     const data = await response.json();
     let tracks = (data.tracks?.items || []) as SpotifyAPITrack[];
 
-    // Filter for BTS and members (preserve existing filter)
+    // Filter for BTS and members
     tracks = tracks.filter((track: SpotifyAPITrack) => 
       track.artists.some(artist => 
         ARTISTS.some(name => 
@@ -134,9 +135,18 @@ export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
       )
     );
 
+    // Transform tracks to include uri
+    const transformedTracks: SpotifyTrack[] = tracks.map(track => ({
+      id: track.id,
+      name: track.name,
+      uri: track.uri,
+      artists: track.artists,
+      album: track.album
+    }));
+
     // Update both caches
     const batch = writeBatch(db);
-    tracks.forEach((track) => {
+    transformedTracks.forEach((track) => {
       const docRef = doc(songsRef, track.id);
       batch.set(docRef, track);
     });
@@ -148,11 +158,11 @@ export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
 
     // Update memory cache
     memoryCache[cacheKey] = {
-      data: tracks,
+      data: transformedTracks,
       timestamp: Date.now()
     };
 
-    return tracks;
+    return transformedTracks;
   } catch (error) {
     console.error('Error searching songs:', error);
     throw error;
@@ -235,9 +245,10 @@ export const updateSpotifySongsCache = async () => {
 export type SpotifyTrack = {
   id: string;
   name: string;
+  uri: string;
   artists: { name: string }[];
   album: {
     name: string;
     images: { url: string }[];
   };
-}; 
+};
