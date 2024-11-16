@@ -1,5 +1,6 @@
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { SpotifyTrack } from '../types/SpotifyTrack';
 
 const CLIENT_ID = 'b7f6d01df636488092d8c08980e43c07';
 const CLIENT_SECRET = 'a4f12c910cac4f678a21547f9265fbbf';
@@ -40,7 +41,11 @@ type SpotifyAPITrack = {
   artists: { name: string }[];
   album: {
     name: string;
-    images: { url: string }[];
+    images: { 
+      url: string;
+      height: number;
+      width: number;
+    }[];
   };
 };
 
@@ -53,28 +58,23 @@ const getAccessToken = async () => {
     return accessToken;
   }
 
-  try {
-    const response = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
-      },
-      body: 'grant_type=client_credentials'
-    });
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
+    },
+    body: 'grant_type=client_credentials'
+  });
 
-    if (!response.ok) {
-      throw new Error('Failed to get access token');
-    }
-
-    const data = await response.json();
-    accessToken = data.access_token;
-    tokenExpiry = Date.now() + (data.expires_in * 1000);
-    return accessToken;
-  } catch (error) {
-    console.error('Error getting access token:', error);
-    throw error;
+  if (!response.ok) {
+    throw new Error('Failed to get access token');
   }
+
+  const data = await response.json();
+  accessToken = data.access_token;
+  tokenExpiry = Date.now() + (data.expires_in * 1000);
+  return accessToken;
 };
 
 export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
@@ -135,13 +135,20 @@ export const searchSongs = async (query: string): Promise<SpotifyTrack[]> => {
       )
     );
 
-    // Transform tracks to include uri
+    // Transform tracks to include uri and proper image dimensions
     const transformedTracks: SpotifyTrack[] = tracks.map(track => ({
       id: track.id,
       name: track.name,
       uri: track.uri,
       artists: track.artists,
-      album: track.album
+      album: {
+        name: track.album.name,
+        images: track.album.images.map(img => ({
+          url: img.url,
+          height: img.height || 0,
+          width: img.width || 0
+        }))
+      }
     }));
 
     // Update both caches
@@ -240,15 +247,4 @@ export const updateSpotifySongsCache = async () => {
     console.error('Error updating Spotify songs cache:', error);
     throw error;
   }
-};
-
-export type SpotifyTrack = {
-  id: string;
-  name: string;
-  uri: string;
-  artists: { name: string }[];
-  album: {
-    name: string;
-    images: { url: string }[];
-  };
 };
