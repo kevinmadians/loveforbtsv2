@@ -1,0 +1,55 @@
+/* BTS-themed background styles */
+:root {
+  --gradient-bg: linear-gradient(
+    135deg,
+    rgba(203, 171, 201, 0.3),
+    rgba(139, 0, 139, 0.2),
+    rgba(255, 182, 193, 0.25)
+  );
+}
+
+html,
+body,
+main,
+#__next,
+.main-content,
+.letter-detail-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--gradient-bg) !important;
+  background-size: 400% 400% !important;
+  animation: gradientBG 15s ease infinite;
+}
+
+/* Page layout structure */
+.letter-detail-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.letter-detail-content {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+/* Remove any background colors from containers */
+.container,
+.mx-auto {
+  background: transparent !important;
+}
+
+/* Write Now button specific style */
+.write-now-button {
+  background: #9333EA !important;
+}
+
+.write-now-button:hover {
+  background: #B674E7 !important;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

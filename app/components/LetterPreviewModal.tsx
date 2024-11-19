@@ -1,6 +1,8 @@
 import { Letter } from '../types/Letter';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { db } from '../firebase/config';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 interface LetterPreviewModalProps {
   letter: Letter;
@@ -18,6 +20,7 @@ export default function LetterPreviewModal({
   isLiked
 }: LetterPreviewModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [currentLikes, setCurrentLikes] = useState(letter.likes || 0);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -25,6 +28,19 @@ export default function LetterPreviewModal({
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  useEffect(() => {
+    // Subscribe to real-time updates of the letter's likes
+    const letterRef = doc(db, 'letters', letter.id);
+    const unsubscribe = onSnapshot(letterRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setCurrentLikes(data.likes || 0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [letter.id]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === modalRef.current) {
@@ -132,7 +148,7 @@ export default function LetterPreviewModal({
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <span className="text-sm">{letter.likes || 0} loves</span>
+            <span className="text-sm">{currentLikes} loves</span>
           </button>
 
           <button
