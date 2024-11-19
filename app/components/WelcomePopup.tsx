@@ -34,11 +34,11 @@ export default function WelcomePopup() {
             <div className={`${styles.popup} ${isVisible ? styles.visible : ''}`}>
                 <button className={styles.closeButton} onClick={handleClose}>×</button>
                 <div className={styles.content}>
-                    <p><b>Hi ARMY! Welcome to Love for BTS💜</b></p> 
-                    <p>Where you can join and write letters to BTS! Whether you want to share your love, appreciation, or just a few heartfelt words, this is right and only place to do it.</p>
-                    <p><b>This website is still in developments,</b> and we need your support to make it perfect! Also please help us by sharing this website to all ARMYs, so we can build this global community together!</p>
-                    <p>Don't forget to support us on <b><a href="https://ko-fi.com/kpopgenerator" target="_blank" rel="noopener noreferrer">Ko-fi</a></b> to keep this website running! Thanks for being a part of our community!</p>
-                    <button className={styles.agreeButton} onClick={handleAgree}>
+                    <p className="font-fredoka text-3xl mb-4"><b>Hi ARMY! Welcome to Love for BTS💜</b></p> 
+                    <p className="font-fredoka mb-3">Where you can join and write letters to BTS! Whether you want to share your love, appreciation, or just a few heartfelt words, this is right and only place to do it.</p>
+                    <p className="font-fredoka mb-3"><b>This website is still in developments,</b> and we need your support to make it perfect! Also please help us by sharing this website to all ARMYs, so we can build this global community together!</p>
+                    <p className="font-fredoka mb-4">Don't forget to support us on <b><a href="https://ko-fi.com/kpopgenerator" target="_blank" rel="noopener noreferrer">Ko-fi</a></b> to keep this website running! Thanks for being a part of our community!</p>
+                    <button className={`${styles.agreeButton} font-fredoka`} onClick={handleAgree}>
                         Yes I understand 💜
                     </button>
                 </div>

@@ -19,6 +19,18 @@ body {
   background: transparent;
 }
 
+/* Font Styles */
+.font-reenie {
+  font-family: var(--font-reenie);
+  letter-spacing: 0.02em;
+}
+
+.font-fredoka {
+  font-family: var(--font-fredoka);
+  letter-spacing: -0.01em;
+}
+
+/* Card Styles */
 .letter-card {
   @apply p-4 rounded-2xl relative;
   margin-bottom: 1rem;
@@ -1000,4 +1012,32 @@ a[href*="ko-fi"]:hover {
 
 .detail-jungkook::before {
   background-image: url('/images/background/jungkook.png');
+}
+
+/* Font Styles */
+.font-reenie {
+  font-family: var(--font-reenie);
+  letter-spacing: 0.02em;
+}
+
+.font-fredoka {
+  font-family: var(--font-fredoka);
+  letter-spacing: -0.01em;
+}
+
+/* Apply fonts to specific elements */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-fredoka font-bold;
+}
+
+.letter-card-title {
+  @apply font-reenie text-2xl;
+}
+
+.letter-card-content {
+  @apply font-fredoka text-base;
+}
+
+.button-text {
+  @apply font-fredoka font-medium;
 }
