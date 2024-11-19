@@ -1,0 +1,92 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.popup {
+    background: #D4B5D4;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.5s ease-out;
+    border: 2px solid #e6e6e6;
+}
+
+.content {
+    text-align: center;
+    font-family: var(--font-fredoka), sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+.content p {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.closeButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.3s ease;
+    border-radius: 50%;
+}
+
+.closeButton:hover {
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.agreeButton {
+    margin-top: 1.5rem;
+    padding: 0.8rem 2rem;
+    background-color: white;
+    border: none;
+    border-radius: 25px;
+    font-family: var(--font-fredoka), sans-serif;
+    font-size: 1.1rem;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.agreeButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background-color: #f8f8f8;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff !important;
-  --foreground: #000000 !important;
+  --background: transparent;
+  --foreground: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff !important;
-    --foreground: #000000 !important;
+    --background: transparent;
+    --foreground: #000000;
   }
 }
 
 body {
   color: var(--foreground);
-  background: var(--background) !important;
+  background: transparent;
 }
 
 .letter-card {
@@ -261,7 +261,7 @@ body {
 
 .letter-card .border-zinc-800,
 .letter-card .border-t {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(0, 0, 0, 0.1);
   padding-top: 0.5rem;
   margin-top: auto;
 }
@@ -387,19 +387,19 @@ a[href*="ko-fi"]:hover {
 @media (max-width: 640px) {
   .letter-card {
     margin-bottom: 1rem;
-    padding: 1rem !important;
+    padding: 1rem;
     min-height: 200px;
     touch-action: pan-y pinch-zoom;
   }
 
   .masonry-grid {
-    margin-left: 0 !important;
+    margin-left: 0;
     touch-action: pan-y pinch-zoom;
     -webkit-overflow-scrolling: touch;
   }
 
   .masonry-grid_column {
-    padding-left: 0 !important;
+    padding-left: 0;
     touch-action: pan-y pinch-zoom;
   }
 
@@ -422,8 +422,8 @@ a[href*="ko-fi"]:hover {
 
   /* Send button container spacing */
   .flex.justify-center.mt-8.mb-16 {
-    margin-top: 2rem !important;
-    margin-bottom: 4rem !important;
+    margin-top: 2rem;
+    margin-bottom: 4rem;
   }
 
   /* Filter section spacing */
@@ -452,11 +452,11 @@ a[href*="ko-fi"]:hover {
 /* Ensure proper spacing between cards on mobile */
 @media (max-width: 380px) {
   .masonry-grid_column {
-    width: 100% !important;
+    width: 100%;
   }
   
   .letter-card {
-    margin-bottom: 1.25rem !important;
+    margin-bottom: 1.25rem;
   }
 }
 
@@ -473,7 +473,7 @@ a[href*="ko-fi"]:hover {
 
 /* Update text colors for the footer area */
 .letter-card .border-t {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(0, 0, 0, 0.1);
   padding-top: 0.5rem;
   margin-top: auto;
 }
@@ -482,7 +482,7 @@ a[href*="ko-fi"]:hover {
 .letter-card h3,
 .letter-card .font-bold,
 .letter-card .text-base {
-  color: rgba(255, 255, 255, 1) !important;
+  color: rgba(255, 255, 255, 1);
 }
 
 /* Remove these overrides that are making the text white */
@@ -490,7 +490,7 @@ a[href*="ko-fi"]:hover {
 .letter-card .text-zinc-300,
 .letter-card .text-xs {
   /* Remove this rule as it's affecting our name text */
-  /* color: rgba(255, 255, 255, 0.8) !important; */
+  /* color: rgba(255, 255, 255, 0.8); */
 }
 
 /* Remove the previous footer text color overrides */
@@ -501,17 +501,17 @@ a[href*="ko-fi"]:hover {
 .letter-card .text-right.text-xs.font-medium.text-gray-800,
 .letter-card .border-t * {
   /* Remove this rule as it's affecting our name text */
-  /* color: rgba(255, 255, 255, 0.8) !important; */
+  /* color: rgba(255, 255, 255, 0.8); */
 }
 
 /* Add specific rule for the name text */
 .letter-card .text-right.text-xs.font-medium.text-gray-950 {
-  color: rgba(0, 0, 0, 0.9) !important;
+  color: rgba(0, 0, 0, 0.9);
 }
 
 /* Keep the like button text colors unchanged */
 .letter-card .border-t button * {
-  color: inherit !important;
+  color: inherit;
 }
 
 /* Add new styles for the message box */
@@ -551,9 +551,9 @@ a[href*="ko-fi"]:hover {
 
 /* Remove any line clamp styles for the detail page */
 [class*='letter-card-content']:not(.masonry-grid *) {
-  -webkit-line-clamp: unset !important;
-  line-clamp: unset !important;
-  display: block !important;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  display: block;
 }
 
 /* Add animated background elements */
