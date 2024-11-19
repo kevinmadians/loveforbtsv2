@@ -18,7 +18,7 @@ const fredoka = Fredoka({
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+  title: 'Love for BTS - Letters from ARMY, to BTS',
   description: 'Write and share your love letters to BTS. A very special platform for ARMY to express love, gratitude, and support through personal messages. Share your story with RM, Jin, Suga, J-Hope, Jimin, V, and Jungkook. Connect with fellow ARMY worldwide through meaningful letters.',
   keywords: 'BTS, ARMY, Love Letters, Fan Letters, 방탄소년단, BTS Letters, ARMY Letters, K-pop, Fan Message, RM, Jin, Suga, J-Hope, Jimin, V, Jungkook, Kim Namjoon, Kim Seokjin, Min Yoongi, Jung Hoseok, Park Jimin, Kim Taehyung, Jeon Jungkook, Bangtan Boys, Bangtan Sonyeondan, Write to BTS, Message to BTS, Fan Platform, ARMY Community, BTS Fan Letters, K-pop Letters, BTS Members, Purple Letters, Borahae, 보라해',
   metadataBase: new URL('https://loveforbts.com'),
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     canonical: '/'
   },
   openGraph: {
-    title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+    title: 'Love for BTS - Letters from ARMY, to BTS',
     description: 'Share your heartfelt letters with BTS. Write, design, and share your personal message of love and support.',
     url: 'https://loveforbts.com',
     siteName: 'Love for BTS',
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Love for BTS - Letters of Love from ARMY, for BTS',
+    title: 'Love for BTS - Letters from ARMY, to BTS',
     description: 'Share your heartfelt letters with BTS. Write, design, and share your personal message of love and support.',
     images: ['/og-image.jpg'],
     creator: '@loveforbts',
