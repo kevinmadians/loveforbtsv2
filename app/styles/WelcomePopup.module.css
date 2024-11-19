@@ -10,6 +10,20 @@
     align-items: center;
     z-index: 1000;
     backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    will-change: opacity, visibility;
+    /* Add hardware acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+}
+
+.overlay.visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 .popup {
@@ -20,8 +34,20 @@
     max-width: 600px;
     width: 90%;
     position: relative;
-    animation: slideIn 0.5s ease-out;
-    border: 2px solid #e6e6e6;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    will-change: transform, opacity;
+    /* Add hardware acceleration */
+    -webkit-transform: translateY(20px) translateZ(0);
+    -webkit-perspective: 1000;
+    -webkit-backface-visibility: hidden;
+}
+
+.popup.visible {
+    opacity: 1;
+    transform: translateY(0);
+    -webkit-transform: translateY(0) translateZ(0);
 }
 
 .content {
@@ -88,5 +114,38 @@
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* Add mobile-specific optimizations */
+@media (max-width: 768px) {
+    .popup {
+        width: 95%;
+        margin: 0 10px;
+        padding: 1.5rem;
+        /* Optimize for mobile rendering */
+        transform: translateY(0) translateZ(0);
+        -webkit-transform: translateY(0) translateZ(0);
+    }
+
+    .content {
+        /* Prevent text flickering */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Optimize animations for mobile */
+    .overlay,
+    .popup {
+        transition-duration: 0.2s;
+    }
+}
+
+/* Add overscroll behavior control */
+@supports (-webkit-touch-callout: none) {
+    .overlay {
+        /* Prevent bouncing on iOS */
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
     }
 }
