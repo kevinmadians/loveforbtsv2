@@ -26,7 +26,6 @@ import {
   QueryDocumentSnapshot,
   getCountFromServer,
   DocumentReference,
-  Promise as FirebasePromise,
   writeBatch
 } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -677,10 +676,16 @@ export default function Home() {
   const handleMemberFilter = (member: string) => {
     console.log('Filtering for member:', member);
     setSelectedMember(member);
+    setTimeout(() => {
+      scrollToLetters();
+    }, 300);
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
+    setTimeout(() => {
+      scrollToLetters();
+    }, 300);
   };
 
   const handleLike = async (e: React.MouseEvent, letterId: string) => {
@@ -703,12 +708,12 @@ export default function Home() {
       setLikedLetters(newLikedLetters);
 
       // Then update the database
-      const batch = writeBatch(db);
-      batch.update(letterRef, {
+      const batch: Promise<void>[] = [];
+      batch.push(updateDoc(letterRef, {
         likes: increment(isLiked ? -1 : 1),
         likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
-      });
-      await batch.commit();
+      }));
+      await Promise.all(batch);
 
       // Save to localStorage after successful database update
       localStorage.setItem('likedLetters', JSON.stringify(Array.from(newLikedLetters)));
@@ -731,7 +736,7 @@ export default function Home() {
       const lettersRef = collection(db, 'letters');
       const snapshot = await getDocs(lettersRef);
       
-      const batch: FirebasePromise<void>[] = [];
+      const batch: Promise<void>[] = [];
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
         if (!data.nameLowerCase && data.name) {
@@ -819,6 +824,18 @@ export default function Home() {
       setIsLoading(false);
     }
   }, [selectedMember, sortOrder, searchQuery, userId]);
+
+  const lettersCardsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToLetters = useCallback(() => {
+    if (lettersCardsRef.current) {
+      lettersCardsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 relative">
@@ -1000,7 +1017,14 @@ export default function Home() {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value) {
+                        setTimeout(() => {
+                          scrollToLetters();
+                        }, 300);
+                      }
+                    }}
                     placeholder="Search by sender name..."
                     className="w-full p-3 pl-10 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9333EA] focus:border-transparent outline-none"
                   />
@@ -1061,7 +1085,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 -mt-2" ref={lettersContainerRef}>
+        <div className="max-w-7xl mx-auto px-4 -mt-2" ref={lettersCardsRef}>
           {isLoading ? (
             <div className="text-center py-8">
               <div className="heart-loading"></div>
