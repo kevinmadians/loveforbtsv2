@@ -24,7 +24,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["public/**/*", ".env.production"]
+  included_files = ["public/**/*"]
 
 [build.processing]
   skip_processing = false
