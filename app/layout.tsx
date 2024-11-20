@@ -4,6 +4,7 @@ import "./globals.css";
 import "./styles/global.css";
 import Script from 'next/script'
 import StickyFooter from './components/StickyFooter'
+import ErrorBoundary from './components/ErrorBoundary';
 
 const reenie = Reenie_Beanie({
   weight: "400",
@@ -133,7 +134,9 @@ export default function RootLayout({
         <div className="sticker-4">⭐</div>
         
         <div className="main-content">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </div>
         <StickyFooter />
       </body>

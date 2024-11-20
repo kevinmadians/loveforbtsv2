@@ -730,32 +730,58 @@ export default function Home() {
     }
   };
 
-  // Migration function to update existing documents
+  // Modify the migration function
   const migrateExistingDocuments = async () => {
     try {
+      // Check if we have permission first
       const lettersRef = collection(db, 'letters');
+      const testQuery = query(lettersRef, limit(1));
+      await getDocs(testQuery);
+
       const snapshot = await getDocs(lettersRef);
       
-      const batch: Promise<void>[] = [];
-      snapshot.docs.forEach((doc) => {
+      const batch = writeBatch(db);
+      let batchCount = 0;
+      const BATCH_LIMIT = 500;
+      
+      for (const doc of snapshot.docs) {
         const data = doc.data();
         if (!data.nameLowerCase && data.name) {
-          batch.push(updateDoc(doc.ref as DocumentReference<DocumentData>, {
+          batch.update(doc.ref, {
             nameLowerCase: data.name.toLowerCase()
-          }));
+          });
+          batchCount++;
+          
+          if (batchCount >= BATCH_LIMIT) {
+            await batch.commit();
+            batchCount = 0;
+          }
         }
-      });
+      }
       
-      await Promise.all(batch);
+      if (batchCount > 0) {
+        await batch.commit();
+      }
+      
       console.log('Migration completed successfully');
     } catch (error) {
-      console.error('Error during migration:', error);
+      // Log error but don't throw
+      console.log('Migration skipped:', error.message);
     }
   };
 
-  // Run migration when component mounts
+  // Modify the useEffect to only run once and handle errors gracefully
   useEffect(() => {
-    migrateExistingDocuments();
+    const migrationKey = 'migrationCompleted';
+    const hasMigrated = localStorage.getItem(migrationKey);
+    
+    if (!hasMigrated) {
+      migrateExistingDocuments().then(() => {
+        localStorage.setItem(migrationKey, 'true');
+      }).catch(error => {
+        console.error('Migration failed:', error);
+      });
+    }
   }, []);
 
   // Update the letters fetching effect to include likedBy field
