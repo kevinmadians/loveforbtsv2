@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { db } from '../../firebase/config';
-import { doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove, onSnapshot, writeBatch } from 'firebase/firestore';
 import { Letter } from '../../types/Letter';
 import type { Metadata } from "next";
 import '../../styles/global.css';
@@ -26,17 +26,30 @@ export default function LetterPage() {
       try {
         const letterId = params.id as string;
         const letterRef = doc(db, 'letters', letterId);
-        const letterDoc = await getDoc(letterRef);
         
-        if (letterDoc.exists()) {
-          const data = letterDoc.data();
-          setLetter({
-            id: letterDoc.id,
-            ...data
-          } as Letter);
-        } else {
-          router.push('/');
-        }
+        // Use onSnapshot instead of getDoc for real-time updates
+        const unsubscribe = onSnapshot(letterRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            const letterData = {
+              id: doc.id,
+              ...data,
+              likedBy: data.likedBy || []
+            } as Letter;
+            
+            setLetter(letterData);
+            
+            // Check if current user has liked the letter
+            const currentUserId = localStorage.getItem('userId');
+            if (currentUserId) {
+              setIsLiked(letterData.likedBy?.includes(currentUserId) || false);
+            }
+          } else {
+            router.push('/');
+          }
+        });
+
+        return () => unsubscribe();
       } catch (error) {
         console.error('Error fetching letter:', error);
         router.push('/');
@@ -45,13 +58,6 @@ export default function LetterPage() {
 
     fetchLetter();
   }, [params.id, router]);
-
-  useEffect(() => {
-    if (letter) {
-      const likedLetters = new Set(JSON.parse(localStorage.getItem('likedLetters') || '[]'));
-      setIsLiked(likedLetters.has(letter.id));
-    }
-  }, [letter]);
 
   const handleShare = async (platform: string) => {
     if (!letter) return;
@@ -151,17 +157,15 @@ export default function LetterPage() {
     try {
       const letterRef = doc(db, 'letters', letter.id);
       
+      // Update the like status optimistically
+      setIsLiked(!isLiked);
+      
       await updateDoc(letterRef, {
         likes: increment(isLiked ? -1 : 1),
         likedBy: isLiked ? arrayRemove(currentUserId) : arrayUnion(currentUserId)
       });
 
-      setLetter(prev => prev ? {
-        ...prev,
-        likes: (prev.likes || 0) + (isLiked ? -1 : 1)
-      } : null);
-      setIsLiked(!isLiked);
-
+      // Update localStorage
       const likedLetters = new Set(JSON.parse(localStorage.getItem('likedLetters') || '[]'));
       if (isLiked) {
         likedLetters.delete(letter.id);
@@ -172,6 +176,8 @@ export default function LetterPage() {
 
     } catch (error) {
       console.error('Error updating likes:', error);
+      // Revert optimistic update on error
+      setIsLiked(!isLiked);
     }
   };
 

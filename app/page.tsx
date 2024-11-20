@@ -112,6 +112,19 @@ export default function Home() {
 
   const [allLetters, setAllLetters] = useState<Letter[]>([]);
 
+  // Add userId state and initialization
+  const [userId, setUserId] = useState<string>('');
+
+  // Add this effect to initialize userId
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    const newUserId = storedUserId || crypto.randomUUID();
+    if (!storedUserId) {
+      localStorage.setItem('userId', newUserId);
+    }
+    setUserId(newUserId);
+  }, []);
+
   const handleLetterInteraction = useCallback((
     letter: Letter,
     event: React.TouchEvent | React.MouseEvent,
@@ -674,6 +687,7 @@ export default function Home() {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!userId) return;
     const isLiked = likedLetters.has(letterId);
 
     try {
@@ -692,7 +706,7 @@ export default function Home() {
       const batch = writeBatch(db);
       batch.update(letterRef, {
         likes: increment(isLiked ? -1 : 1),
-        likedBy: isLiked ? arrayRemove('anonymous') : arrayUnion('anonymous')
+        likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
       });
       await batch.commit();
 
@@ -739,8 +753,83 @@ export default function Home() {
     migrateExistingDocuments();
   }, []);
 
+  // Update the letters fetching effect to include likedBy field
+  useEffect(() => {
+    if (searchQuery) return; // Skip if search is active
+
+    try {
+      setIsLoading(true);
+      setHasMore(true);
+      lastDocRef.current = null;
+
+      const lettersRef = collection(db, 'letters');
+      const queryConstraints = [];
+
+      if (selectedMember && selectedMember !== 'all') {
+        queryConstraints.push(where('member', '==', selectedMember));
+      }
+
+      if (sortOrder === 'mostLoved') {
+        queryConstraints.push(orderBy('likes', 'desc'));
+        queryConstraints.push(orderBy('timestamp', 'desc'));
+      } else {
+        queryConstraints.push(orderBy('timestamp', sortOrder === 'oldest' ? 'asc' : 'desc'));
+      }
+
+      queryConstraints.push(limit(LETTERS_PER_PAGE));
+
+      const unsubscribeLetters = onSnapshot(
+        query(lettersRef, ...queryConstraints),
+        (snapshot) => {
+          const fetchedLetters = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              likedBy: data.likedBy || []
+            };
+          }) as Letter[];
+
+          setLetters(fetchedLetters);
+          
+          // Update likedLetters based on fetched data
+          if (userId) {
+            const newLikedLetters = new Set(
+              fetchedLetters
+                .filter(letter => letter.likedBy?.includes(userId))
+                .map(letter => letter.id)
+            );
+            setLikedLetters(newLikedLetters);
+            localStorage.setItem('likedLetters', JSON.stringify(Array.from(newLikedLetters)));
+          }
+
+          lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
+          setHasMore(snapshot.docs.length === LETTERS_PER_PAGE);
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error('Error fetching letters:', error);
+          setIsLoading(false);
+        }
+      );
+
+      return () => unsubscribeLetters();
+    } catch (error) {
+      console.error('Error setting up listeners:', error);
+      setIsLoading(false);
+    }
+  }, [selectedMember, sortOrder, searchQuery, userId]);
+
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 relative">
+      <div className="floating-stickers absolute inset-0 pointer-events-none overflow-hidden">
+        <span className="sticker-1">✨</span>
+        <span className="sticker-2">🎵</span>
+        <span className="sticker-3">💫</span>
+        <span className="sticker-4">⭐</span>
+        <span className="sticker-5">💜</span>
+      </div>
+      <div className="bg-pattern fixed inset-0 pointer-events-none"></div>
       {previewLetter && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" onClick={() => setPreviewLetter(null)} />
       )}

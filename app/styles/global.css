@@ -17,9 +17,7 @@ main,
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: var(--gradient-bg) !important;
-  background-size: 400% 400% !important;
-  animation: gradientBG 15s ease infinite;
+  background: #fff !important;
 }
 
 /* Page layout structure */
@@ -46,10 +44,4 @@ main,
 
 .write-now-button:hover {
   background: #B674E7 !important;
-}
-
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }

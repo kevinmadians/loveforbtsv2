@@ -18,7 +18,7 @@ const badWords = [
   'piss off', 'suck', 'sucker', 'loser', 'bastards', 'bloody',
   'stupid', 'shame', 'losser', 'shut', 'ass', 'fucking', 'fvcking',
   'fu*king', 'dumb', 'die', 'cheat', 'cheating', 'fvck',
-  'f*ck', 'fu*k', 'fuc*', 'badass', '💩', '👎', '🤮', '🐵'
+  'f*ck', 'fu*k', 'fuc*', 'badass'
 ];
 
 export const containsBadWords = (text: string): { hasBadWords: boolean; foundWords: string[] } => {
